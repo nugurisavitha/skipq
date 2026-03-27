@@ -237,14 +237,19 @@ const createOrder = asyncHandler(async (req, res, next) => {
     await order.save();
 
     // Emit socket event for new order
-    if (req.app.get('io')) {
-      req.app.get('io').emitNewOrder(restaurantId, {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        tokenNumber: order.tokenNumber,
-        total: order.total,
-        items: order.items,
-      });
+    try {
+      const io = req.app.get('io');
+      if (io && typeof io.emitNewOrder === 'function') {
+        io.emitNewOrder(restaurantId, {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          tokenNumber: order.tokenNumber,
+          total: order.total,
+          items: order.items,
+        });
+      }
+    } catch (socketErr) {
+      console.error('Socket notification failed:', socketErr.message);
     }
 
     res.status(201).json({
@@ -448,19 +453,23 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   }
 
   // Emit socket event with useful data for customer toast/notifications
-  if (req.app.get('io')) {
-    // Populate restaurant name for the notification
-    const populatedOrder = await order.populate('restaurant', 'name selfService');
-    req.app.get('io').emitOrderUpdate(order._id, status, {
-      note,
-      orderNumber: order.orderNumber,
-      tokenNumber: order.tokenNumber,
-      estimatedTime: order.estimatedTime,
-      restaurantName: populatedOrder.restaurant?.name,
-      selfService: populatedOrder.restaurant?.selfService,
-      orderType: order.orderType,
-      tableNumber: order.tableNumber,
-    });
+  try {
+    const io = req.app.get('io');
+    if (io && typeof io.emitOrderUpdate === 'function') {
+      const populatedOrder = await order.populate('restaurant', 'name selfService');
+      io.emitOrderUpdate(order._id, status, {
+        note,
+        orderNumber: order.orderNumber,
+        tokenNumber: order.tokenNumber,
+        estimatedTime: order.estimatedTime,
+        restaurantName: populatedOrder.restaurant?.name,
+        selfService: populatedOrder.restaurant?.selfService,
+        orderType: order.orderType,
+        tableNumber: order.tableNumber,
+      });
+    }
+  } catch (socketErr) {
+    console.error('Socket notification failed:', socketErr.message);
   }
 
   res.status(200).json({
@@ -511,14 +520,19 @@ const assignDeliveryPerson = asyncHandler(async (req, res) => {
   await order.save();
 
   // Emit socket event to delivery person
-  if (req.app.get('io')) {
-    req.app.get('io').emitOrderAssignment(deliveryPersonId, {
-      orderId: order._id,
-      orderNumber: order.orderNumber,
-      restaurant: order.restaurant,
-      deliveryAddress: order.deliveryAddress,
-      total: order.total,
-    });
+  try {
+    const io = req.app.get('io');
+    if (io && typeof io.emitOrderAssignment === 'function') {
+      io.emitOrderAssignment(deliveryPersonId, {
+        orderId: order._id,
+        orderNumber: order.orderNumber,
+        restaurant: order.restaurant,
+        deliveryAddress: order.deliveryAddress,
+        total: order.total,
+      });
+    }
+  } catch (socketErr) {
+    console.error('Socket notification failed:', socketErr.message);
   }
 
   res.status(200).json({
@@ -584,8 +598,13 @@ const cancelOrder = asyncHandler(async (req, res) => {
   await order.save();
 
   // Emit socket event
-  if (req.app.get('io')) {
-    req.app.get('io').emitOrderUpdate(order._id, 'cancelled');
+  try {
+    const io = req.app.get('io');
+    if (io && typeof io.emitOrderUpdate === 'function') {
+      io.emitOrderUpdate(order._id, 'cancelled');
+    }
+  } catch (socketErr) {
+    console.error('Socket notification failed:', socketErr.message);
   }
 
   res.status(200).json({
