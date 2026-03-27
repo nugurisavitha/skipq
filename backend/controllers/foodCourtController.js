@@ -499,20 +499,24 @@ const createFoodCourtOrder = asyncHandler(async (req, res) => {
   await order.populate('customer', 'name email phone');
 
   // Notify each restaurant via Socket.IO
-  const io = req.app.get('io');
-  if (io) {
-    for (const rs of restaurantStatuses) {
-      const restaurantItems = orderItems.filter(
-        (i) => i.restaurantId.toString() === rs.restaurantId.toString()
-      );
-      io.emitNewOrder(rs.restaurantId.toString(), {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        foodCourtName: foodCourt.name,
-        items: restaurantItems,
-        customer: { name: req.user.name || order.customer?.name },
-      });
+  try {
+    const io = req.app.get('io');
+    if (io && typeof io.emitNewOrder === 'function') {
+      for (const rs of restaurantStatuses) {
+        const restaurantItems = orderItems.filter(
+          (i) => i.restaurantId.toString() === rs.restaurantId.toString()
+        );
+        io.emitNewOrder(rs.restaurantId.toString(), {
+          orderId: order._id,
+          orderNumber: order.orderNumber,
+          foodCourtName: foodCourt.name,
+          items: restaurantItems,
+          customer: { name: req.user.name || order.customer?.name },
+        });
+      }
     }
+  } catch (socketErr) {
+    console.error('Socket notification failed:', socketErr.message);
   }
 
   res.status(201).json({
@@ -527,7 +531,7 @@ const createFoodCourtOrder = asyncHandler(async (req, res) => {
 /**
  * Update per-restaurant status in a food court order
  * PATCH /api/food-courts/orders/:orderId/restaurant-status
- * Body: { restaurantId, status } — status: 'confirmed' | 'preparing' | 'ready' | 'picked_up'
+ * Body: { restaurantId, status } â status: 'confirmed' | 'preparing' | 'ready' | 'picked_up'
  * Access: Restaurant Admin, Admin, Super Admin
  */
 const updateRestaurantStatus = asyncHandler(async (req, res) => {
@@ -598,9 +602,11 @@ const updateRestaurantStatus = asyncHandler(async (req, res) => {
   await order.save();
 
   // Send real-time notification to customer
+  try {
   const io = req.app.get('io');
   if (io) {
     // Notify the order room
+    if (typeof io.emitOrderUpdate === 'function') {
     io.emitOrderUpdate(order._id.toString(), order.status, {
       restaurantId,
       restaurantName: rsEntry.restaurantName,
@@ -688,7 +694,7 @@ const getRestaurantFoodCourtOrders = asyncHandler(async (req, res) => {
 /**
  * Get nearest food court to a given location
  * GET /api/food-courts/nearby?lat=xx&lng=xx&radius=500
- * radius is in meters (default 500m — i.e. user is physically inside/near the food court)
+ * radius is in meters (default 500m â i.e. user is physically inside/near the food court)
  * Access: Public
  */
 const getNearbyFoodCourt = asyncHandler(async (req, res) => {
