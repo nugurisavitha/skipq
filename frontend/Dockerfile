@@ -41,9 +41,6 @@ RUN npm run build
 # Production Stage
 FROM nginx:alpine AS prod
 
-# Install envsubst (part of gettext)
-RUN apk add --no-cache gettext
-
 # Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
@@ -56,5 +53,5 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Expose port
 EXPOSE 80
 
-# Use envsubst to replace env vars in nginx config at runtime, then start nginx
-CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# Use sed to replace BACKEND_URL placeholder in nginx config, then start nginx
+CMD ["/bin/sh", "-c", "sed \"s|BACKEND_URL_PLACEHOLDER|$BACKEND_URL|g\" /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
