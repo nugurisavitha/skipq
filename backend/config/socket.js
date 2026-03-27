@@ -8,7 +8,9 @@ const socketIO = require('socket.io');
 const initializeSocket = (server) => {
   const io = socketIO(server, {
     cors: {
-      origin: process.env.SOCKET_IO_CORS_ORIGIN || 'http://localhost:3000',
+      origin: process.env.NODE_ENV === 'production'
+        ? true
+        : (process.env.SOCKET_IO_CORS_ORIGIN || 'http://localhost:3000'),
       methods: ['GET', 'POST'],
       credentials: true,
     },
