@@ -227,7 +227,7 @@ app.post('/api/seed', async (req, res) => {
       // Dragon Palace
       {restaurant:dragonPalace._id,name:'Kung Pao Chicken',description:'Spicy stir-fried chicken with peanuts',price:380,category:'Main Course',cuisine:'Chinese',isVeg:false,isAvailable:true,preparationTime:15},
       {restaurant:dragonPalace._id,name:'Veg Fried Rice',description:'Wok-tossed rice with fresh vegetables',price:220,category:'Main Course',cuisine:'Chinese',isVeg:true,isAvailable:true,preparationTime:12},
-      {restaurant:dragonPalace._id,name:'Dim Sum Platter',description:'Assorted steamed dumplings',price:350,category:'Starters',cuisine:'Chinese',isVeg:false,isAvailable:true,preparationTime:18},
+      {restaurant:dragonPalace._id,name:'Dim Sum Platter',description:'Assorted steamed dumplings',price:350,category: 'Appetizers',cuisine:'Chinese',isVeg:false,isAvailable:true,preparationTime:18},
       {restaurant:dragonPalace._id,name:'Hakka Noodles',description:'Stir-fried noodles with vegetables',price:250,category:'Main Course',cuisine:'Chinese',isVeg:true,isAvailable:true,preparationTime:10},
       // Pizza Fino
       {restaurant:pizzaFino._id,name:'Margherita Pizza',description:'Classic tomato, mozzarella and basil',price:350,category:'Main Course',cuisine:'Italian',isVeg:true,isAvailable:true,preparationTime:12},
