@@ -146,15 +146,23 @@ const verifyPayment = asyncHandler(async (req, res) => {
     await order.save();
 
     // Emit socket event
-    if (req.app.get('io')) {
-      req.app.get('io').emitNewOrder(order.restaurant, {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        total: order.total,
-        items: order.items,
-      });
-
-      req.app.get('io').emitOrderUpdate(order._id, 'confirmed');
+    try {
+      const io = req.app.get('io');
+      if (io) {
+        if (typeof io.emitNewOrder === 'function') {
+          io.emitNewOrder(order.restaurant, {
+            orderId: order._id,
+            orderNumber: order.orderNumber,
+            total: order.total,
+            items: order.items,
+          });
+        }
+        if (typeof io.emitOrderUpdate === 'function') {
+          io.emitOrderUpdate(order._id, 'confirmed');
+        }
+      }
+    } catch (socketErr) {
+      console.error('Socket notification failed:', socketErr.message);
     }
 
     res.status(200).json({
