@@ -60,7 +60,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Apple Universal Links
+// Apple Universal Links — apple-app-site-association
+// When you publish to App Store, update the appID with your Team ID and Bundle ID
 app.get('/.well-known/apple-app-site-association', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.json({
@@ -76,7 +77,8 @@ app.get('/.well-known/apple-app-site-association', (req, res) => {
   });
 });
 
-// Android App Links
+// Android App Links — assetlinks.json
+// When you publish to Play Store, update the package name and sha256 fingerprint
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.json([
@@ -93,6 +95,17 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
   ]);
 });
 
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/menu', menuRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/qr', qrRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/delivery', deliveryRoutes);
+app.use('/api/food-courts', foodCourtRoutes);
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -107,21 +120,22 @@ app.use(errorHandler);
 // Start server
 const PORT = process.env.PORT || 5000;
 
-// Log server error events
+// Log server error events (e.g. EADDRINUSE, EACCES)
 server.on('error', (err) => {
   console.error('Server error:', err);
   process.exit(1);
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log('Server running on port ' + PORT);
-  console.log('Environment: ' + (process.env.NODE_ENV || 'development'));
-  console.log('Client URL: ' + (process.env.CLIENT_URL || 'http://localhost:3000'));
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
+  // Close server and exit process
   server.close(() => process.exit(1));
 });
 
