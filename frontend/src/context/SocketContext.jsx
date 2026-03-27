@@ -13,7 +13,7 @@ export default function SocketProvider({ children }) {
   useEffect(() => {
     // Initialize socket connection
     const socketInstance = io(
-      import.meta.env.VITE_SOCKET_URL || 'http://localhost:5050',
+      import.meta.env.VITE_SOCKET_URL || window.location.origin,
       {
         reconnection: true,
         reconnectionDelay: 1000,
