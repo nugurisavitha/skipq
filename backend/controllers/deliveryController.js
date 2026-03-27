@@ -101,8 +101,13 @@ const updateDeliveryStatus = asyncHandler(async (req, res) => {
   await order.save();
 
   // Emit socket event
-  if (req.app.get('io')) {
-    req.app.get('io').emitOrderUpdate(order._id, status);
+  try {
+    const io = req.app.get('io');
+    if (io && typeof io.emitOrderUpdate === 'function') {
+      io.emitOrderUpdate(order._id, status);
+    }
+  } catch (socketErr) {
+    console.error('Socket notification failed:', socketErr.message);
   }
 
   res.status(200).json({
