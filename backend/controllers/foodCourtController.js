@@ -531,7 +531,7 @@ const createFoodCourtOrder = asyncHandler(async (req, res) => {
 /**
  * Update per-restaurant status in a food court order
  * PATCH /api/food-courts/orders/:orderId/restaurant-status
- * Body: { restaurantId, status } â status: 'confirmed' | 'preparing' | 'ready' | 'picked_up'
+ * Body: { restaurantId, status } — status: 'confirmed' | 'preparing' | 'ready' | 'picked_up'
  * Access: Restaurant Admin, Admin, Super Admin
  */
 const updateRestaurantStatus = asyncHandler(async (req, res) => {
@@ -603,23 +603,35 @@ const updateRestaurantStatus = asyncHandler(async (req, res) => {
 
   // Send real-time notification to customer
   try {
-  const io = req.app.get('io');
-  if (io) {
-    // Notify the order room
-    if (typeof io.emitOrderUpdate === 'function') {
-    io.emitOrderUpdate(order._id.toString(), order.status, {
-      restaurantId,
-      restaurantName: rsEntry.restaurantName,
-      restaurantStatus: status,
-      estimatedTime: rsEntry.estimatedTime,
-      restaurantStatuses: order.restaurantStatuses,
-    });
+    const io = req.app.get('io');
+    if (io) {
+      // Notify the order room
+      if (typeof io.emitOrderUpdate === 'function') {
+        io.emitOrderUpdate(order._id.toString(), order.status, {
+          restaurantId,
+          restaurantName: rsEntry.restaurantName,
+          restaurantStatus: status,
+          estimatedTime: rsEntry.estimatedTime,
+          restaurantStatuses: order.restaurantStatuses,
+        });
+      }
 
-    // If this restaurant's items are ready, send a specific "pickup ready" notification
-    if (status === 'ready') {
-      const customerSocketId = io.getSocketId(order.customer.toString());
-      if (customerSocketId) {
-        io.to(customerSocketId).emit('food_court_pickup_ready', {
+      // If this restaurant's items are ready, send a specific "pickup ready" notification
+      if (status === 'ready') {
+        if (typeof io.getSocketId === 'function') {
+          const customerSocketId = io.getSocketId(order.customer.toString());
+          if (customerSocketId) {
+            io.to(customerSocketId).emit('food_court_pickup_ready', {
+              orderId: order._id,
+              orderNumber: order.orderNumber,
+              restaurantName: rsEntry.restaurantName,
+              restaurantId,
+              message: `Your food from ${rsEntry.restaurantName} is ready for pickup at the counter!`,
+            });
+          }
+        }
+        // Also broadcast to the order room
+        io.to(`order_${order._id.toString()}`).emit('food_court_pickup_ready', {
           orderId: order._id,
           orderNumber: order.orderNumber,
           restaurantName: rsEntry.restaurantName,
@@ -627,15 +639,9 @@ const updateRestaurantStatus = asyncHandler(async (req, res) => {
           message: `Your food from ${rsEntry.restaurantName} is ready for pickup at the counter!`,
         });
       }
-      // Also broadcast to the order room
-      io.to(`order_${order._id.toString()}`).emit('food_court_pickup_ready', {
-        orderId: order._id,
-        orderNumber: order.orderNumber,
-        restaurantName: rsEntry.restaurantName,
-        restaurantId,
-        message: `Your food from ${rsEntry.restaurantName} is ready for pickup at the counter!`,
-      });
     }
+  } catch (socketErr) {
+    console.error('Socket notification failed:', socketErr.message);
   }
 
   res.status(200).json({
@@ -694,7 +700,7 @@ const getRestaurantFoodCourtOrders = asyncHandler(async (req, res) => {
 /**
  * Get nearest food court to a given location
  * GET /api/food-courts/nearby?lat=xx&lng=xx&radius=500
- * radius is in meters (default 500m â i.e. user is physically inside/near the food court)
+ * radius is in meters (default 500m — i.e. user is physically inside/near the food court)
  * Access: Public
  */
 const getNearbyFoodCourt = asyncHandler(async (req, res) => {
