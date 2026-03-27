@@ -293,7 +293,7 @@ const logout = asyncHandler(async (req, res) => {
 /**
  * Register restaurant owner + create restaurant
  * POST /api/auth/register-restaurant
- * Public â anyone can apply to become a restaurant partner
+ * Public — anyone can apply to become a restaurant partner
  */
 const registerRestaurant = asyncHandler(async (req, res) => {
   const {
@@ -399,7 +399,7 @@ const registerRestaurant = asyncHandler(async (req, res) => {
 /**
  * Send OTP to mobile number
  * POST /api/auth/send-otp
- * Public â for customer and delivery_admin login
+ * Public — for customer and delivery_admin login
  */
 const sendOTP = asyncHandler(async (req, res) => {
   const { phone } = req.body;
@@ -451,7 +451,7 @@ const sendOTP = asyncHandler(async (req, res) => {
     data: {
       phone,
       isNewUser: !existingUser,
-      // Include OTP in response ONLY for development â remove in production
+      // Include OTP in response when DEV_OTP is set or in non-production
       ...(( process.env.DEV_OTP || process.env.NODE_ENV !== 'production') && { otp: otpCode }),
     },
   });
@@ -460,7 +460,7 @@ const sendOTP = asyncHandler(async (req, res) => {
 /**
  * Verify OTP and login/register
  * POST /api/auth/verify-otp
- * Public â for customer and delivery_admin login
+ * Public — for customer and delivery_admin login
  */
 const verifyOTP = asyncHandler(async (req, res) => {
   const { phone, otp, name } = req.body;
@@ -512,14 +512,14 @@ const verifyOTP = asyncHandler(async (req, res) => {
     });
   }
 
-  // OTP verified â delete it
+  // OTP verified — delete it
   await OTP.deleteOne({ _id: otpRecord._id });
 
   // Find or create user
   let user = await User.findOne({ phone, role: { $in: ['customer', 'delivery_admin'] } });
 
   if (!user) {
-    // New user â auto-register as customer
+    // New user — auto-register as customer
     if (!name || !name.trim()) {
       return res.status(400).json({
         success: false,
@@ -531,8 +531,8 @@ const verifyOTP = asyncHandler(async (req, res) => {
     user = await User.create({
       name: name.trim(),
       phone,
-      email: `${phone}@skipq.user`, // Placeholder email for OTP-only users
-      password: require('crypto').randomBytes(32).toString('hex'), // Random password â user logs in via OTP only
+      email: `${phone}@skipq.app`, // Placeholder email for OTP-only users
+      password: require('crypto').randomBytes(32).toString('hex'), // Random password — user logs in via OTP only
       role: 'customer',
       isVerified: true,
     });
