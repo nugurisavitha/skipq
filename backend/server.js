@@ -60,7 +60,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Apple Universal Links
+// Apple Universal Links — apple-app-site-association
+// When you publish to App Store, update the appID with your Team ID and Bundle ID
 app.get('/.well-known/apple-app-site-association', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.json({
@@ -76,7 +77,8 @@ app.get('/.well-known/apple-app-site-association', (req, res) => {
   });
 });
 
-// Android App Links
+// Android App Links — assetlinks.json
+// When you publish to Play Store, update the package name and sha256 fingerprint
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.json([
@@ -91,50 +93,6 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
       },
     },
   ]);
-});
-
-// Temporary fix endpoint - rehash passwords and set phone numbers (REMOVE AFTER USE)
-app.post('/api/fix-users', async (req, res) => {
-  try {
-    if (req.headers['x-seed-key'] !== 'skipq-seed-2024') {
-      return res.status(403).json({ success: false, message: 'Unauthorized' });
-    }
-    const User = require('./models/User');
-    const bcrypt = require('bcryptjs');
-
-    const phoneMap = {
-      'superadmin@skipq.com': '9876543210',
-      'admin@skipq.com': '9876543211',
-      'raj@spicehaven.com': '9876543212',
-      'maria@pizzafino.com': '9876543213',
-      'wei@dragonpalace.com': '9876543220',
-      'sanjay@juicebar.com': '9876543214',
-      'deepa@dosapoint.com': '9876543215',
-    };
-
-    const users = await User.find({}).select('+password');
-    const results = [];
-
-    for (const user of users) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash('Admin@123', salt);
-      const updates = { password: hashedPassword };
-      if (phoneMap[user.email] && !user.phone) {
-        updates.phone = phoneMap[user.email];
-      }
-      await User.updateOne({ _id: user._id }, { $set: updates });
-      results.push({
-        name: user.name,
-        email: user.email,
-        phone: phoneMap[user.email] || user.phone,
-        role: user.role,
-      });
-    }
-
-    res.json({ success: true, message: 'Users fixed', users: results });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
 });
 
 // API Routes
@@ -177,6 +135,7 @@ server.listen(PORT, '0.0.0.0', () => {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
+  // Close server and exit process
   server.close(() => process.exit(1));
 });
 
