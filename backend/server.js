@@ -109,8 +109,14 @@ app.post('/api/seed', async (req, res) => {
     
     // Check if already seeded
     const existingRestaurants = await Restaurant.countDocuments();
-    if (existingRestaurants > 0) {
-      return res.json({ success: true, message: 'Database already seeded', count: existingRestaurants });
+    const existingMenuItems = await MenuItem.countDocuments();
+    if (existingRestaurants > 0 && existingMenuItems > 0) {
+      return res.json({ success: true, message: 'Database already seeded', count: existingRestaurants, menuItems: existingMenuItems });
+    }
+    // If restaurants exist but no menu items, clean up and re-seed
+    if (existingRestaurants > 0 && existingMenuItems === 0) {
+      await Restaurant.deleteMany({});
+      await User.deleteMany({ role: { $ne: 'user' } });
     }
     
     // Create admin users
