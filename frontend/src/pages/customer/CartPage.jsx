@@ -19,6 +19,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import api from '../../services/api';
 import EmptyState from '../../components/common/EmptyState';
+import LocationPickerButton from '../../components/common/LocationPickerButton';
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -306,24 +307,13 @@ export default function CartPage() {
                     </label>
 
                     {/* Use My Location Button */}
-                    <button
-                      type="button"
-                      onClick={handleUseMyLocation}
-                      disabled={locationLoading}
-                      className="w-full mb-3 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-dashed border-blue-200 text-blue-700 font-semibold rounded-[12px] hover:from-blue-100 hover:to-blue-150 transition-all disabled:opacity-50"
-                    >
-                      {locationLoading ? (
-                        <>
-                          <FiLoader className="w-4 h-4 animate-spin" />
-                          <span>Detecting your location...</span>
-                        </>
-                      ) : (
-                        <>
-                          <FiNavigation className="w-4 h-4" />
-                          <span>Use My Current Location</span>
-                        </>
-                      )}
-                    </button>
+                    <LocationPickerButton
+                      buttonLabel="Use My Current Location"
+                      onLocationSelect={({ address }) => {
+                        setSelectedAddress(address);
+                      }}
+                      className="mb-3"
+                    />
 
                     <div className="relative">
                       <textarea
