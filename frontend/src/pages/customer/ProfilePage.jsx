@@ -18,6 +18,7 @@ import { toast } from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import Modal from '../../components/common/Modal';
+import LocationPickerButton from '../../components/common/LocationPickerButton';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -355,6 +356,17 @@ export default function ProfilePage() {
                     <label className="block text-sm font-bold text-gray-900 mb-2">
                       Address
                     </label>
+                    <LocationPickerButton
+                      onLocationSelect={({ address, lat, lng }) => {
+                        setAddressFormData((prev) => ({
+                          ...prev,
+                          address,
+                          latitude: lat.toString(),
+                          longitude: lng.toString(),
+                        }));
+                      }}
+                      className="mb-2"
+                    />
                     <textarea
                       name="address"
                       value={addressFormData.address}
