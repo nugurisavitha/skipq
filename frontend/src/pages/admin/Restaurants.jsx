@@ -23,6 +23,7 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { adminAPI, restaurantsAPI, menuAPI } from '../../services/api';
+import LocationPickerButton from '../../components/common/LocationPickerButton';
 
 const CUISINE_OPTIONS = [
   'Indian', 'Chinese', 'Continental', 'Italian', 'Mexican', 'Thai',
@@ -802,6 +803,14 @@ export default function AdminRestaurants() {
                 {/* Address */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Address *</label>
+                  <LocationPickerButton
+                    compact={false}
+                    buttonLabel="Detect Location"
+                    onLocationSelect={({ address }) => {
+                      setNewRestaurant((prev) => ({ ...prev, address }));
+                    }}
+                    className="mb-2"
+                  />
                   <div className="relative">
                     <FiMapPin className="absolute left-3 top-3 text-gray-400" size={16} />
                     <input
