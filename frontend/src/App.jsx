@@ -43,6 +43,7 @@ const AdminUsers = lazy(() => import('./pages/admin/Users'));
 const AdminOrders = lazy(() => import('./pages/admin/Orders'));
 const AdminAnalytics = lazy(() => import('./pages/admin/Analytics'));
 const AdminFoodCourts = lazy(() => import('./pages/admin/FoodCourts'));
+const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 
 // Delivery pages
 const DeliveryDashboard = lazy(() => import('./pages/delivery/Dashboard'));
@@ -182,6 +183,7 @@ export default function App() {
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="food-courts" element={<AdminFoodCourts />} />
+                    <Route path="settings" element={<AdminSettings />} />
                   </Routes>
                 </AdminLayout>
               </ProtectedRoute>
