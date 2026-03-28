@@ -10,6 +10,7 @@ import {
 import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import { restaurantsAPI } from '../../services/api';
+import LocationPickerButton from '../../components/common/LocationPickerButton';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -261,6 +262,13 @@ export default function Settings() {
               <label className="block text-sm font-medium text-gray-900 mb-1">
                 Address
               </label>
+              <LocationPickerButton
+                buttonLabel="Detect Restaurant Location"
+                onLocationSelect={({ address }) => {
+                  setFormData((prev) => ({ ...prev, address }));
+                }}
+                className="mb-2"
+              />
               <textarea
                 name="address"
                 value={formData.address}
