@@ -22,6 +22,7 @@ router.patch('/users/:id/toggle-status', adminController.toggleUserStatus);
 router.get('/orders', adminController.getAllOrders);
 
 // Analytics
+router.get('/analytics', adminController.getAnalytics);
 router.get('/analytics/revenue', adminController.getRevenueAnalytics);
 
 // Restaurant management
