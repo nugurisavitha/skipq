@@ -146,7 +146,7 @@ export default function HomePage() {
           foodCourtsAPI.getAll({ limit: 4 }).catch(() => ({ data: { data: { foodCourts: [] } } })),
         ]);
 
-        const allRestaurants = restRes.data?.data || restRes.data || [];
+        const allRestaurants = restRes.data?.data?.restaurants || restRes.data?.data || [];
         setRestaurants(allRestaurants.slice(0, 8));
 
         const sorted = [...allRestaurants].sort((a, b) => (b.rating || 0) - (a.rating || 0));

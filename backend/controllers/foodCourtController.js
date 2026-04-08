@@ -452,7 +452,7 @@ const createFoodCourtOrder = asyncHandler(async (req, res) => {
       quantity: item.quantity,
       customizations: item.customizations || [],
       restaurantId: menuItem.restaurant,
-      restaurantName: (await Restaurant.findById(menuItem.restaurant)).name,
+      restaurantName: ((await Restaurant.findById(menuItem.restaurant)) || {}).name || 'Unknown Restaurant',
     });
   }
 

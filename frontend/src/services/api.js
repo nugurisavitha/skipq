@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Use relative URL so requests go through Vite proxy in dev (avoids CORS issues)
-const baseURL = import.meta.env.VITE_API_URL || `${window.location.origin}/api`;
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
 const instance = axios.create({
   baseURL,
@@ -82,94 +82,3 @@ export const ordersAPI = {
   getAll: (params) => instance.get('/orders', { params }),
   getById: (orderId) => instance.get(`/orders/${orderId}`),
   updateStatus: (orderId, status, estimatedTime) =>
-    instance.patch(`/orders/${orderId}/status`, { status, ...(estimatedTime ? { estimatedTime } : {}) }),
-  cancel: (orderId) => instance.patch(`/orders/${orderId}/cancel`),
-  assignDelivery: (orderId, deliveryId) =>
-    instance.patch(`/orders/${orderId}/assign-delivery`, { deliveryId }),
-};
-
-// Payments API
-export const paymentsAPI = {
-  createOrder: (data) => instance.post('/payments/create-order', data),
-  verify: (data) => instance.post('/payments/verify', data),
-};
-
-// QR Codes API
-export const qrAPI = {
-  generate: (data) => instance.post('/qr/generate', data),
-  getForRestaurant: (restaurantId) =>
-    instance.get(`/qr/restaurant/${restaurantId}`),
-  getById: (id) => instance.get(`/qr/${id}`),
-  download: (qrCodeId) =>
-    instance.get(`/qr/${qrCodeId}/download`, {
-      responseType: 'blob',
-    }),
-  trackScan: (id) => instance.post(`/qr/${id}/scan`),
-  resolveDeepLink: (slug, tableNumber) =>
-    tableNumber
-      ? instance.get(`/qr/resolve/${slug}/${encodeURIComponent(tableNumber)}`)
-      : instance.get(`/qr/resolve/${slug}`),
-  toggle: (id) => instance.patch(`/qr/${id}/toggle`),
-  delete: (id) => instance.delete(`/qr/${id}`),
-};
-
-// Admin API
-export const adminAPI = {
-  getDashboard: () => instance.get('/admin/dashboard'),
-  getUsers: (params) => instance.get('/admin/users', { params }),
-  updateRole: (userId, role) =>
-    instance.patch(`/admin/users/${userId}/role`, { role }),
-  getAnalytics: (params) => instance.get('/admin/analytics', { params }),
-  getRestaurants: (params) => instance.get('/admin/restaurants', { params }),
-  approveRestaurant: (restaurantId) =>
-    instance.post(`/admin/restaurants/${restaurantId}/approve`),
-  rejectRestaurant: (restaurantId) =>
-    instance.post(`/admin/restaurants/${restaurantId}/reject`),
-};
-
-// Delivery API
-export const deliveryAPI = {
-  getAssigned: (params) => instance.get('/delivery/orders', { params }),
-  updateStatus: (orderId, status) =>
-    instance.patch(`/delivery/orders/${orderId}/status`, { status }),
-  getHistory: (params) => instance.get('/delivery/history', { params }),
-  toggleAvailability: (available) =>
-    instance.patch('/delivery/availability', { available }),
-  getEarnings: (params) => instance.get('/delivery/earnings', { params }),
-};
-
-// Food Courts API
-export const foodCourtsAPI = {
-  getAll: (params) => instance.get('/food-courts', { params }),
-  getNearby: (lat, lng, radius) => instance.get('/food-courts/nearby', { params: { lat, lng, radius } }),
-  getById: (id) => instance.get(`/food-courts/${id}`),
-  getBySlug: (slug) => instance.get(`/food-courts/slug/${slug}`),
-  getMenu: (id) => instance.get(`/food-courts/${id}/menu`),
-  createOrder: (id, data) => instance.post(`/food-courts/${id}/order`, data),
-  create: (data) => instance.post('/food-courts', data),
-  update: (id, data) => instance.put(`/food-courts/${id}`, data),
-  delete: (id) => instance.delete(`/food-courts/${id}`),
-  addRestaurant: (id, restaurantId) => instance.patch(`/food-courts/${id}/restaurants`, { restaurantId }),
-  removeRestaurant: (id, restaurantId) => instance.delete(`/food-courts/${id}/restaurants/${restaurantId}`),
-  updateRestaurantStatus: (orderId, restaurantId, status, estimatedTime) =>
-    instance.patch(`/food-courts/orders/${orderId}/restaurant-status`, {
-      restaurantId, status, ...(estimatedTime ? { estimatedTime } : {}),
-    }),
-  getRestaurantOrders: (restaurantId, params) =>
-    instance.get(`/food-courts/orders/restaurant/${restaurantId}`, { params }),
-};
-
-// Export organized API methods
-const api = {
-  auth: authAPI,
-  restaurants: restaurantsAPI,
-  menu: menuAPI,
-  orders: ordersAPI,
-  payments: paymentsAPI,
-  qr: qrAPI,
-  admin: adminAPI,
-  delivery: deliveryAPI,
-  foodCourts: foodCourtsAPI,
-};
-
-export default api;
