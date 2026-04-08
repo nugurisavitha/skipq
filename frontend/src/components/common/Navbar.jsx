@@ -71,9 +71,9 @@ export default function Navbar() {
     <nav className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo - always links to homepage */}
           <Link
-            to={getRolePath()}
+            to="/"
             className="flex items-center space-x-2 flex-shrink-0"
           >
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">

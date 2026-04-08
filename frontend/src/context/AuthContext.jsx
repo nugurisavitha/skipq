@@ -85,6 +85,7 @@ export default function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('skipq_cart');
     setUser(null);
     setError(null);
   };

@@ -283,12 +283,12 @@ export default function RestaurantDetailPage() {
           <div className="border-2 border-dashed border-primary/30 rounded-[15px] p-4 text-center">
             <FiMapPin className="w-6 h-6 text-primary mx-auto mb-2" />
             <p className="text-sm text-gray-600">Distance</p>
-            <p className="font-bold text-gray-900">{restaurant.distance || 2.5} km</p>
+            <p className="font-bold text-gray-900">{restaurant.distance ? `${restaurant.distance} km` : 'Nearby'}</p>
           </div>
           <div className="border-2 border-dashed border-primary/30 rounded-[15px] p-4 text-center">
             <div className="w-6 h-6 text-primary mx-auto mb-2 flex items-center justify-center">🍴</div>
             <p className="text-sm text-gray-600">Cuisines</p>
-            <p className="font-bold text-gray-900 text-xs">{restaurant.cuisines?.[0] || 'Multi'}</p>
+            <p className="font-bold text-gray-900 text-xs">{restaurant.cuisines?.length > 0 ? restaurant.cuisines.join(', ') : 'Various'}</p>
           </div>
         </div>
 

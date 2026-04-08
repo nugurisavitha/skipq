@@ -14,9 +14,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     // Total statistics
     const totalOrders = await Order.countDocuments();
     const totalRestaurants = await Restaurant.countDocuments({ isVerified: true });
-    const totalUsers = await User.countDocuments({ role: 'customer' });
+    const totalUsers = await User.countDocuments();
     const totalRevenue = await Order.aggregate([
-      { $match: { paymentStatus: 'paid' } },
       { $group: { _id: null, total: { $sum: '$total' } } },
     ]);
 
@@ -27,7 +26,6 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
     // Revenue by month (last 12 months)
     const revenueByMonth = await Order.aggregate([
-      { $match: { paymentStatus: 'paid' } },
       {
         $group: {
           _id: {
@@ -44,7 +42,6 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 
     // Top restaurants by revenue
     const topRestaurants = await Order.aggregate([
-      { $match: { paymentStatus: 'paid' } },
       {
         $group: {
           _id: '$restaurant',

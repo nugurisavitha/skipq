@@ -54,6 +54,8 @@ const DeliveryHistory = lazy(() => import('./pages/delivery/History'));
 const RestaurantRegisterPage = lazy(() => import('./pages/auth/RestaurantRegisterPage'));
 const RestaurantLoginPage = lazy(() => import('./pages/auth/RestaurantLoginPage'));
 
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const Unauthorized = lazy(() => import('./pages/Unauthorized'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -84,6 +86,8 @@ export default function App() {
             <Route path="/login" element={<OTPLoginPage />} />
             <Route path="/login/email" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/restaurants" element={<RestaurantsPage />} />
             <Route path="/restaurant/:slug" element={<RestaurantDetailPage />} />
             <Route path="/scan" element={<QRScanPage />} />

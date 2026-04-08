@@ -79,26 +79,41 @@ export default function AdminDashboard() {
         rating: r.restaurantDetails?.[0]?.rating || 0,
       }));
 
-      // Generate revenue chart data (last 7 days)
-      const revenueData = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateStr = format(date, 'MMM dd');
-
-        // In real scenario, you'd aggregate by day
-        revenueData.push({
-          date: dateStr,
-          revenue: Math.floor(Math.random() * 50000) + 10000,
-        });
+      // Generate revenue chart data (last 7 days) from actual backend data
+      let revenueData = [];
+      if (revenueByMonth && revenueByMonth.length > 0) {
+        revenueData = revenueByMonth.map((item) => ({
+          date: item.date || item._id || 'N/A',
+          revenue: item.revenue || item.total || 0,
+        }));
+      } else {
+        // Fallback: show last 7 days with zero revenue if no data
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          const dateStr = format(date, 'MMM dd');
+          revenueData.push({
+            date: dateStr,
+            revenue: 0,
+          });
+        }
       }
 
-      // Map orders by status
-      const statusChartData = Object.entries(ordersByStatus || {}).map(([status, count]) => ({
-        name: status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' '),
-        value: count,
-        status,
-      }));
+      // Map orders by status - handle both array and object formats from backend
+      let statusChartData = [];
+      if (Array.isArray(ordersByStatus)) {
+        statusChartData = ordersByStatus.map((item) => ({
+          name: (item._id || item.status || 'unknown').charAt(0).toUpperCase() + (item._id || item.status || 'unknown').slice(1).replace('_', ' '),
+          value: item.count || item.value || 0,
+          status: item._id || item.status || 'unknown',
+        }));
+      } else if (typeof ordersByStatus === 'object') {
+        statusChartData = Object.entries(ordersByStatus).map(([status, count]) => ({
+          name: status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' '),
+          value: count,
+          status,
+        }));
+      }
 
       // Fetch recent orders
       const ordersResponse = await ordersAPI.getAll({ limit: 10 });
@@ -167,7 +182,6 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
                 <FiUsers className="w-6 h-6 text-blue-600" />
               </div>
-              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">+12%</span>
             </div>
             <p className="text-gray-600 text-sm font-poppins">Total Users</p>
             <p className="text-3xl font-bold text-gray-900 mt-2 font-poppins">{data.stats.totalUsers.toLocaleString()}</p>
@@ -179,7 +193,6 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
                 <FiShoppingBag className="w-6 h-6 text-green-600" />
               </div>
-              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">+8%</span>
             </div>
             <p className="text-gray-600 text-sm font-poppins">Total Restaurants</p>
             <p className="text-3xl font-bold text-gray-900 mt-2 font-poppins">{data.stats.totalRestaurants.toLocaleString()}</p>
@@ -191,7 +204,6 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center">
                 <FiPackage className="w-6 h-6 text-orange-600" />
               </div>
-              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">+15%</span>
             </div>
             <p className="text-gray-600 text-sm font-poppins">Total Orders</p>
             <p className="text-3xl font-bold text-gray-900 mt-2 font-poppins">{data.stats.totalOrders.toLocaleString()}</p>
@@ -203,7 +215,6 @@ export default function AdminDashboard() {
               <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center">
                 <FiDollarSign className="w-6 h-6 text-purple-600" />
               </div>
-              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">+22%</span>
             </div>
             <p className="text-gray-600 text-sm font-poppins">Total Revenue</p>
             <p className="text-3xl font-bold text-gray-900 mt-2 font-poppins">

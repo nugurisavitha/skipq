@@ -175,14 +175,14 @@ export default function HomePage() {
   };
 
   const categories = [
-    { name: 'Pizza', emoji: '🍕', cuisine: 'pizza' },
-    { name: 'Burger', emoji: '🍔', cuisine: 'burger' },
-    { name: 'Biryani', emoji: '🍛', cuisine: 'biryani' },
-    { name: 'Chinese', emoji: '🥡', cuisine: 'chinese' },
-    { name: 'Desserts', emoji: '🍰', cuisine: 'desserts' },
-    { name: 'Beverages', emoji: '🥤', cuisine: 'beverages' },
-    { name: 'Healthy', emoji: '🥗', cuisine: 'healthy' },
-    { name: 'South Indian', emoji: '🍲', cuisine: 'south-indian' },
+    { name: 'Indian', emoji: '🍛', cuisine: 'Indian' },
+    { name: 'Chinese', emoji: '🥡', cuisine: 'Chinese' },
+    { name: 'Italian', emoji: '🍕', cuisine: 'Italian' },
+    { name: 'South Indian', emoji: '🍲', cuisine: 'South Indian' },
+    { name: 'Fast Food', emoji: '🍔', cuisine: 'Fast Food' },
+    { name: 'Desserts', emoji: '🍰', cuisine: 'Desserts' },
+    { name: 'Beverages', emoji: '🥤', cuisine: 'Beverages' },
+    { name: 'North Indian', emoji: '🥘', cuisine: 'North Indian' },
   ];
 
   return (
@@ -332,7 +332,7 @@ export default function HomePage() {
           ) : (
             <div className="text-center py-12 bg-gradient-to-br from-[#F2A93E]/5 to-[#F07054]/5 rounded-[15px] border-2 border-dashed border-orange-200">
               <FiGrid className="w-12 h-12 text-[#F2A93E] mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Food Courts Coming Soon</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Explore Food Courts</h3>
               <p className="text-gray-600 mb-4">Multi-restaurant ordering with a single payment</p>
               <Link
                 to="/food-courts"
@@ -631,120 +631,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ==================== FOOTER ==================== */}
-      <footer className="bg-gray-900 text-white py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Main Footer Content */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            {/* Company Info */}
-            <div>
-              <h3 className="text-2xl font-bold mb-4 text-[#F2A93E]">SkipQ</h3>
-              <p className="text-gray-400 mb-4">
-                Delivering delicious food to your doorstep, one order at a time.
-              </p>
-              <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors text-xl">
-                  f
-                </a>
-                <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors text-xl">
-                  𝕏
-                </a>
-                <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors text-xl">
-                  📷
-                </a>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="font-bold text-lg mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/about" className="text-gray-400 hover:text-[#F2A93E] transition-colors">
-                    About Us
-                  </Link>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors">
-                    Contact Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors">
-                    FAQ
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors">
-                    Blog
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Legal */}
-            <div>
-              <h4 className="font-bold text-lg mb-4">Legal</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-[#F2A93E] transition-colors">
-                    Cookie Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div>
-              <h4 className="font-bold text-lg mb-4">Newsletter</h4>
-              <p className="text-gray-400 mb-4 text-sm">
-                Subscribe for exclusive offers and updates
-              </p>
-              <form className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#F2A93E] hover:bg-[#F07054] rounded-r-lg font-bold transition-colors"
-                >
-                  →
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-800 pt-8">
-            {/* Footer Bottom */}
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <p className="text-gray-400 text-sm">
-                © 2024 SkipQ. All rights reserved.
-              </p>
-              <div className="flex items-center space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-400 hover:text-[#F2A93E] text-sm transition-colors">
-                  Sitemap
-                </a>
-                <a href="#" className="text-gray-400 hover:text-[#F2A93E] text-sm transition-colors">
-                  Accessibility
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Footer is rendered by App.jsx layout - removed duplicate inline footer */}
     </div>
   );
 }

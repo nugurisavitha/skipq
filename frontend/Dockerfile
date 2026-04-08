@@ -1,21 +1,3 @@
-# Development Stage
-FROM node:18-alpine AS dev
-
-WORKDIR /app
-
-# Install dependencies
-COPY package*.json ./
-RUN npm install
-
-# Copy application code
-COPY . .
-
-# Expose port (Vite default dev server port)
-EXPOSE 5173
-
-# Development server
-CMD ["npm", "run", "dev"]
-
 # Build Stage
 FROM node:18-alpine AS build
 
@@ -53,5 +35,5 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Expose port
 EXPOSE 80
 
-# Use sed to replace BACKEND_URL placeholder in nginx config, then start nginx
+# Use sed to replace BACKEND_URL_PLACEHOLDER with the actual BACKEND_URL env var at runtime, then start nginx
 CMD ["/bin/sh", "-c", "sed \"s|BACKEND_URL_PLACEHOLDER|$BACKEND_URL|g\" /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

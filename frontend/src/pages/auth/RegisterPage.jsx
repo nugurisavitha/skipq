@@ -113,6 +113,7 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (!validateForm()) {
+      toast.error('Please fill in all required fields correctly.');
       return;
     }
 
@@ -391,13 +392,13 @@ export default function RegisterPage() {
                 />
                 <label htmlFor="terms" className="text-sm text-gray-600">
                   I agree to the{' '}
-                  <a href="#" className="text-primary hover:text-primary-dark font-medium transition-colors">
+                  <Link to="/terms" className="text-primary hover:text-primary-dark font-medium transition-colors">
                     Terms of Service
-                  </a>{' '}
+                  </Link>{' '}
                   and{' '}
-                  <a href="#" className="text-primary hover:text-primary-dark font-medium transition-colors">
+                  <Link to="/privacy" className="text-primary hover:text-primary-dark font-medium transition-colors">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </label>
               </div>
               {errors.terms && (
