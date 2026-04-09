@@ -35,5 +35,5 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Expose port
 EXPOSE 80
 
-# Use sed to replace BACKEND_URL_PLACEHOLDER with the actual BACKEND_URL env var at runtime, then start nginx
-CMD ["/bin/sh", "-c", "sed \"s|BACKEND_URL_PLACEHOLDER|$BACKEND_URL|g\" /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# Use sed to replace placeholders with actual env vars at runtime, then start nginx
+CMD ["/bin/sh", "-c", "sed -e \"s|BACKEND_URL_PLACEHOLDER|$BACKEND_URL|g\" -e \"s|PORT_PLACEHOLDER|${PORT:-80}|g\" /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
