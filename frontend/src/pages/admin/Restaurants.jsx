@@ -56,6 +56,7 @@ export default function AdminRestaurants() {
     preparationTime: 30,
     minimumOrder: 100,
     deliveryFee: 50,
+    location: null,
   });
 
   // Clone Menu state
@@ -148,7 +149,7 @@ export default function AdminRestaurants() {
   const resetCreateForm = () => {
     setNewRestaurant({
       name: '', ownerId: '', address: '', phone: '', email: '',
-      description: '', cuisine: [], preparationTime: 30, minimumOrder: 100, deliveryFee: 50,
+      description: '', cuisine: [], preparationTime: 30, minimumOrder: 100, deliveryFee: 50, location: null,
     });
     setCloneFromId('');
     setCloneSearch('');
@@ -192,27 +193,29 @@ export default function AdminRestaurants() {
     if (!newRestaurant.address.trim()) { toast.error('Restaurant address is required'); return; }
     if (!newRestaurant.phone.trim()) { toast.error('Restaurant phone is required'); return; }
 
-    const phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(newRestaurant.phone.trim())) {
-      toast.error('Please enter a valid 10-digit phone number');
+    const phoneClean = newRestaurant.phone.trim().replace(/\s+/g, '');
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phoneClean)) {
+      toast.error('Please enter a valid 10-digit phone number (digits only)');
       return;
     }
 
     try {
       setSavingRestaurant(true);
 
+      const loc = newRestaurant.location || { lat: 12.9716, lng: 77.5946 };
       const payload = {
         name: newRestaurant.name.trim(),
         ownerId: newRestaurant.ownerId,
         address: newRestaurant.address.trim(),
-        phone: newRestaurant.phone.trim(),
+        phone: phoneClean,
         email: newRestaurant.email.trim() || undefined,
         description: newRestaurant.description.trim() || undefined,
         cuisine: newRestaurant.cuisine.length > 0 ? newRestaurant.cuisine : ['Other'],
         preparationTime: parseInt(newRestaurant.preparationTime) || 30,
         minimumOrder: parseInt(newRestaurant.minimumOrder) || 100,
         deliveryFee: parseInt(newRestaurant.deliveryFee) || 50,
-        location: { lng: 0, lat: 0 },
+        location: loc,
       };
 
       // Step 1: Create the restaurant
@@ -806,8 +809,12 @@ export default function AdminRestaurants() {
                   <LocationPickerButton
                     compact={false}
                     buttonLabel="Detect Location"
-                    onLocationSelect={({ address }) => {
-                      setNewRestaurant((prev) => ({ ...prev, address }));
+                    onLocationSelect={({ address, lat, lng }) => {
+                      setNewRestaurant((prev) => ({
+                        ...prev,
+                        address: address || prev.address,
+                        location: lat && lng ? { lat, lng } : prev.location,
+                      }));
                     }}
                     className="mb-2"
                   />
@@ -818,10 +825,15 @@ export default function AdminRestaurants() {
                       name="address"
                       value={newRestaurant.address}
                       onChange={handleNewRestaurantChange}
-                      placeholder="Restaurant address"
+                      placeholder="Restaurant address (type or use Detect Location)"
                       className="w-full pl-9 pr-3 py-2 border-2 border-orange-200 rounded-lg focus:outline-none focus:border-orange-400 bg-white"
                     />
                   </div>
+                  {newRestaurant.location && (
+                    <p className="text-xs text-green-600 mt-1">
+                      Coordinates: {newRestaurant.location.lat.toFixed(4)}, {newRestaurant.location.lng.toFixed(4)}
+                    </p>
+                  )}
                 </div>
 
                 {/* Phone */}
