@@ -125,6 +125,7 @@ export const adminAPI = {
     instance.post(`/admin/restaurants/${restaurantId}/approve`),
   rejectRestaurant: (restaurantId) =>
     instance.post(`/admin/restaurants/${restaurantId}/reject`),
+  createAdmin: (data) => instance.post('/admin/create-admin', data),
 };
 
 // Delivery API
