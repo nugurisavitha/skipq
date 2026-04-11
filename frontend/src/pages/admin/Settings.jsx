@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FiSettings, FiUser, FiShield, FiLoader, FiSave, FiUserPlus } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
-import api from '../../services/api';
+import api, { authAPI, adminAPI } from '../../services/api';
 
 export default function AdminSettings() {
   const { user } = useAuth();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(location.state?.tab || 'profile');
   const [profile, setProfile] = useState({
     name: '',
     email: '',
@@ -35,7 +37,7 @@ export default function AdminSettings() {
     e.preventDefault();
     try {
       setLoading(true);
-      await api.patch('/auth/profile', profile);
+      await api.auth.updateProfile(profile);
       toast.success('Profile updated successfully');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update profile');
@@ -48,7 +50,7 @@ export default function AdminSettings() {
     e.preventDefault();
     try {
       setLoading(true);
-      await api.post('/admin/create-admin', newAdmin);
+      await adminAPI.createAdmin(newAdmin);
       toast.success(`${newAdmin.role} account created successfully`);
       setNewAdmin({ name: '', email: '', phone: '', password: '', role: 'admin' });
     } catch (error) {
