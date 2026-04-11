@@ -179,20 +179,17 @@ export default function FoodCourts() {
       return;
     }
 
-    if (!formData.location && !editingId) {
-      toast.error('Please use "Detect Location" to set the food court coordinates');
-      return;
-    }
-
     try {
       setLoading(true);
+      // Use detected location if available, otherwise default to Bangalore coordinates
+      const loc = formData.location || { lat: 12.9716, lng: 77.5946 };
       const payload = {
         name: formData.name,
         description: formData.description,
         address: formData.address,
         image: formData.image,
         logo: formData.logo,
-        ...(formData.location && { location: formData.location }),
+        location: loc,
       };
       if (editingId) {
         await foodCourtsAPI.update(editingId, payload);
@@ -1209,8 +1206,8 @@ export default function FoodCourts() {
                     </p>
                   )}
                   {!formData.location && (
-                    <p className="text-xs text-amber-600 mt-1">
-                      Use &quot;Detect Location&quot; to set coordinates (required)
+                    <p className="text-xs text-gray-500 mt-1">
+                      Tip: Use &quot;Detect Location&quot; for auto-coordinates, or just type the address above
                     </p>
                   )}
                 </div>
