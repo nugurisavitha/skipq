@@ -25,12 +25,17 @@ const createRestaurant = asyncHandler(async (req, res) => {
   } = req.body;
 
   // Validation
-  if (!name || !address || !phone || !ownerId || !location) {
+  if (!name || !address || !phone || !ownerId) {
     return res.status(400).json({
       success: false,
-      message: 'Please provide all required fields',
+      message: 'Please provide all required fields (name, address, phone, ownerId)',
     });
   }
+
+  // Default location to Bangalore if not provided
+  const loc = location && location.lat && location.lng
+    ? location
+    : { lat: 12.9716, lng: 77.5946 };
 
   // Verify owner exists and is restaurant_admin
   const owner = await User.findById(ownerId);
@@ -52,7 +57,7 @@ const createRestaurant = asyncHandler(async (req, res) => {
     email,
     location: {
       type: 'Point',
-      coordinates: [location.lng, location.lat], // GeoJSON uses [longitude, latitude]
+      coordinates: [loc.lng, loc.lat], // GeoJSON uses [longitude, latitude]
     },
     preparationTime,
     minimumOrder,
