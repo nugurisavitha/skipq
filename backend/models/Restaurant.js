@@ -56,7 +56,7 @@ const restaurantSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: [true, 'Please provide restaurant phone'],
-      match: [/^[6-9]\d{9}$/, 'Invalid phone number format'],
+      match: [/^\d{10,15}$/, 'Phone must be 10-15 digits'],
     },
     email: {
       type: String,
