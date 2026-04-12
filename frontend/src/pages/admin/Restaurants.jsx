@@ -487,6 +487,7 @@ export default function AdminRestaurants() {
 
         {/* Restaurants Cards */}
         {filteredRestaurants.length > 0 ? (
+          <>
           <div className="grid grid-cols-1 gap-4">
             {paginatedRestaurants.map((restaurant) => (
               <div key={restaurant._id || restaurant.id} className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] shadow-sm overflow-hidden hover:shadow-md transition">
@@ -629,6 +630,7 @@ export default function AdminRestaurants() {
               </div>
             </div>
           )}
+          </>
         ) : (
           <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] h-64 flex items-center justify-center text-gray-500">
             <div className="text-center">
