@@ -11,6 +11,8 @@ import {
   FiLoader,
   FiChevronDown,
   FiChevronUp,
+  FiChevronLeft,
+  FiChevronRight,
   FiUser,
   FiPhone,
   FiMail,
@@ -77,6 +79,10 @@ export default function FoodCourts() {
   const [importErrors, setImportErrors] = useState([]);
   const [importLoading, setImportLoading] = useState(false);
   const [importFileName, setImportFileName] = useState('');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
 
   useEffect(() => {
     fetchFoodCourts();
@@ -520,7 +526,7 @@ export default function FoodCourts() {
           if (clonedCount > 0) {
             toast.success(`Cloned ${clonedCount} menu items!`);
           } else {
-            toast('Source restaurant has no menu items to clone', { icon: 'ℹ️' });
+            toast('Source restaurant has no menu items to clone', { icon: 'â¹ï¸' });
           }
         } catch (cloneErr) {
           console.error('Menu clone failed:', cloneErr);
@@ -553,6 +559,13 @@ export default function FoodCourts() {
       )
   );
 
+  // Pagination
+  const totalPages = Math.ceil(foodCourts.length / itemsPerPage);
+  const paginatedFoodCourts = foodCourts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6 md:p-8">
       {/* Header */}
@@ -582,7 +595,7 @@ export default function FoodCourts() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {foodCourts.map((foodCourt) => (
+          {paginatedFoodCourts.map((foodCourt) => (
             <div
               key={foodCourt._id || foodCourt.id}
               className="border-2 border-dashed border-orange-200 rounded-[15px] overflow-hidden hover:shadow-lg transition-shadow duration-300 bg-white"
@@ -690,6 +703,48 @@ export default function FoodCourts() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between p-4 bg-white border-2 border-dashed border-orange-200 rounded-[15px] mb-8">
+          <p className="text-sm text-gray-600">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, foodCourts.length)} of {foodCourts.length}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FiChevronLeft className="w-4 h-4" />
+              Previous
+            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 rounded text-sm font-medium transition ${
+                    page === currentPage
+                      ? 'bg-orange-500 text-white'
+                      : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+              <FiChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -871,7 +926,7 @@ export default function FoodCourts() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Minimum Order (₹)
+                        Minimum Order (â¹)
                       </label>
                       <input
                         type="number"
@@ -885,7 +940,7 @@ export default function FoodCourts() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Delivery Fee (₹)
+                        Delivery Fee (â¹)
                       </label>
                       <input
                         type="number"
@@ -927,7 +982,7 @@ export default function FoodCourts() {
                       Clone Menu From Existing Restaurant (Optional)
                     </label>
                     <p className="text-xs text-purple-600 mb-3">
-                      For chain restaurants like McDonald's, KFC etc. — copy the entire menu from an existing branch.
+                      For chain restaurants like McDonald's, KFC etc. â copy the entire menu from an existing branch.
                     </p>
 
                     {/* Search filter for restaurants */}
@@ -954,7 +1009,7 @@ export default function FoodCourts() {
                             : 'bg-white text-gray-600 hover:bg-purple-100 border border-purple-100'
                         }`}
                       >
-                        No clone — start with empty menu
+                        No clone â start with empty menu
                       </button>
 
                       {restaurants
@@ -1340,7 +1395,7 @@ export default function FoodCourts() {
                 <div className="bg-red-50 border border-red-200 rounded-[10px] p-4">
                   <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2"><FiAlertCircle className="w-4 h-4" /> Issues</h4>
                   <ul className="text-sm text-red-600 space-y-1 max-h-32 overflow-y-auto">
-                    {importErrors.map((err, i) => <li key={i}>• {err}</li>)}
+                    {importErrors.map((err, i) => <li key={i}>â¢ {err}</li>)}
                   </ul>
                 </div>
               )}
@@ -1370,7 +1425,7 @@ export default function FoodCourts() {
                             <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-green-50/30'}>
                               <td className="p-2 text-gray-500">{idx + 1}</td>
                               <td className="p-2 font-medium text-gray-900">{item.name}</td>
-                              <td className="p-2 text-gray-700">₹{item.price}</td>
+                              <td className="p-2 text-gray-700">â¹{item.price}</td>
                               <td className="p-2 text-gray-600">{item.category || 'Other'}</td>
                               <td className="p-2">
                                 <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${isVeg ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
