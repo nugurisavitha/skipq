@@ -90,6 +90,47 @@ export default function AdminOrders() {
     return colors[type] || 'bg-gray-50 text-gray-700';
   };
 
+  const handleExportCSV = () => {
+    try {
+      const dataToExport = filteredOrders.length > 0 ? filteredOrders : orders;
+      if (dataToExport.length === 0) {
+        toast.error('No orders to export');
+        return;
+      }
+
+      const headers = ['Order #', 'Customer', 'Restaurant', 'Items', 'Total (\u20b9)', 'Status', 'Type', 'Payment Status', 'Date'];
+      const rows = dataToExport.map((order) => [
+        order.orderNumber || '',
+        order.customer?.name || 'N/A',
+        order.restaurant?.name || 'N/A',
+        order.items?.length || 0,
+        order.total || 0,
+        order.status?.replace('_', ' ') || '',
+        order.orderType?.replace('_', ' ') || '',
+        order.paymentStatus || 'N/A',
+        order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '',
+      ]);
+
+      const csvContent = [headers, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `orders_export_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success(`Exported ${dataToExport.length} orders`);
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export orders');
+    }
+  };
+
   const filteredOrders = orders.filter((order) => {
     const matchesSearch = !searchTerm || order.orderNumber?.includes(searchTerm);
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
@@ -122,7 +163,7 @@ export default function AdminOrders() {
             <h1 className="text-3xl font-bold text-gray-900">Orders Management</h1>
             <p className="text-gray-600 text-sm mt-1">Total orders: {orders.length}</p>
           </div>
-          <button className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
+          <button onClick={handleExportCSV} className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition">
             <FiDownload className="w-5 h-5" />
             <span>Export</span>
           </button>
@@ -244,7 +285,7 @@ export default function AdminOrders() {
                           <td className="py-3 px-4 text-gray-600 text-sm">{order.customer?.name || 'N/A'}</td>
                           <td className="py-3 px-4 text-gray-600 text-sm">{order.restaurant?.name || 'N/A'}</td>
                           <td className="py-3 px-4 text-gray-900 text-sm font-semibold">{order.items?.length || 0}</td>
-                          <td className="py-3 px-4 text-gray-900 font-semibold">₹{order.total?.toLocaleString('en-IN')}</td>
+                          <td className="py-3 px-4 text-gray-900 font-semibold">â¹{order.total?.toLocaleString('en-IN')}</td>
                           <td className="py-3 px-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeColor(order.status)}`}>
                               {order.status?.replace('_', ' ')}
