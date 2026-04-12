@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AreaChart,
   Area,
@@ -39,6 +40,7 @@ const DEFAULT_STATUS_COLOR = { bg: '#f3f4f6', text: '#374151', label: 'Unknown' 
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({
     stats: {
@@ -177,7 +179,7 @@ export default function AdminDashboard() {
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Total Users */}
-          <div className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300">
+          <div onClick={() => navigate('/admin/users')} className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
                 <FiUsers className="w-6 h-6 text-blue-600" />
@@ -188,7 +190,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Total Restaurants */}
-          <div className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300">
+          <div onClick={() => navigate('/admin/restaurants')} className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center">
                 <FiShoppingBag className="w-6 h-6 text-green-600" />
@@ -199,7 +201,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Total Orders */}
-          <div className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300">
+          <div onClick={() => navigate('/admin/orders')} className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center">
                 <FiPackage className="w-6 h-6 text-orange-600" />
@@ -210,7 +212,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Total Revenue */}
-          <div className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300">
+          <div onClick={() => navigate('/admin/analytics')} className="bg-white rounded-[15px] border border-dashed border-gray-200 p-6 shadow-sm hover:shadow-md hover:translate-y-[-5px] transition-all duration-300 cursor-pointer">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center">
                 <FiDollarSign className="w-6 h-6 text-purple-600" />
