@@ -112,7 +112,7 @@ export default function LoginPage() {
 
             {/* Bottom Text */}
             <div className="relative z-10 space-y-2">
-              <p className="text-white/70 text-sm">Let's get your cravings satisfied! 🍕</p>
+              <p className="text-white/70 text-sm">Let's get your cravings satisfied! ð</p>
             </div>
           </div>
 
@@ -158,12 +158,13 @@ export default function LoginPage() {
                   <label className="block text-sm font-semibold text-gray-700">
                     Password
                   </label>
-                  <Link
-                    to="#"
+                  <button
+                    type="button"
+                    onClick={() => toast('Please contact your administrator to reset your password.', { icon: '\u2139\uFE0F' })}
                     className="text-sm text-primary hover:text-primary-dark transition-colors font-medium"
                   >
                     Forgot?
-                  </Link>
+                  </button>
                 </div>
                 <div className="relative group">
                   <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
@@ -175,7 +176,7 @@ export default function LoginPage() {
                     className={`input-field pl-12 pr-12 w-full border-1 focus:border-primary focus:shadow-md focus:shadow-primary/20 transition-all ${
                       errors.password ? 'border-red-500' : ''
                     }`}
-                    placeholder="••••••••"
+                    placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
                     disabled={isLoading}
                   />
                   <button
