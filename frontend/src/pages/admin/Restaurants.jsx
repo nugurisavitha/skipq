@@ -6,6 +6,8 @@ import {
   FiSearch,
   FiChevronDown,
   FiChevronUp,
+  FiChevronLeft,
+  FiChevronRight,
   FiLoader,
   FiAlertCircle,
   FiStar,
@@ -73,6 +75,10 @@ export default function AdminRestaurants() {
   const [importErrors, setImportErrors] = useState([]);
   const [importLoading, setImportLoading] = useState(false);
   const [importFileName, setImportFileName] = useState('');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const tabs = ['all', 'pending', 'active', 'inactive'];
 
@@ -235,7 +241,7 @@ export default function AdminRestaurants() {
           if (clonedCount > 0) {
             toast.success(`Cloned ${clonedCount} menu items!`);
           } else {
-            toast('Source restaurant has no menu items to clone', { icon: 'ℹ️' });
+            toast('Source restaurant has no menu items to clone', { icon: 'â¹ï¸' });
           }
         } catch (cloneErr) {
           console.error('Menu clone failed:', cloneErr);
@@ -407,7 +413,14 @@ export default function AdminRestaurants() {
     return matchesSearch;
   });
 
-  // For clone list — use already-loaded restaurants from the page
+  // Pagination
+  const totalPages = Math.ceil(filteredRestaurants.length / itemsPerPage);
+  const paginatedRestaurants = filteredRestaurants.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // For clone list â use already-loaded restaurants from the page
   const cloneFilteredRestaurants = restaurants.filter((r) =>
     r.name?.toLowerCase().includes(cloneSearch.toLowerCase())
   );
@@ -449,7 +462,7 @@ export default function AdminRestaurants() {
               type="text"
               placeholder="Search by restaurant name or owner..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
             />
           </div>
@@ -460,7 +473,7 @@ export default function AdminRestaurants() {
           {tabs.map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
               className={`px-4 py-2 font-medium text-sm whitespace-nowrap border-b-2 transition ${
                 activeTab === tab
                   ? 'border-[#F2A93E] text-[#F2A93E]'
@@ -475,7 +488,7 @@ export default function AdminRestaurants() {
         {/* Restaurants Cards */}
         {filteredRestaurants.length > 0 ? (
           <div className="grid grid-cols-1 gap-4">
-            {filteredRestaurants.map((restaurant) => (
+            {paginatedRestaurants.map((restaurant) => (
               <div key={restaurant._id || restaurant.id} className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] shadow-sm overflow-hidden hover:shadow-md transition">
                 <div className="p-6">
                   {/* Header Row */}
@@ -518,7 +531,7 @@ export default function AdminRestaurants() {
                       <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs text-gray-600 font-medium">Revenue</p>
-                          <p className="text-sm font-bold text-[#F2A93E] mt-1">₹{(restaurant.revenue || 0).toLocaleString()}</p>
+                          <p className="text-sm font-bold text-[#F2A93E] mt-1">â¹{(restaurant.revenue || 0).toLocaleString()}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-600 font-medium">Phone</p>
@@ -574,6 +587,48 @@ export default function AdminRestaurants() {
               </div>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between p-4 bg-white border-2 border-dashed border-orange-200 rounded-[15px] mt-4">
+              <p className="text-sm text-gray-600">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredRestaurants.length)} of {filteredRestaurants.length}
+              </p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <FiChevronLeft className="w-4 h-4" />
+                  Previous
+                </button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded text-sm font-medium transition ${
+                        page === currentPage
+                          ? 'bg-[#F2A93E] text-white'
+                          : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                  <FiChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
         ) : (
           <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] h-64 flex items-center justify-center text-gray-500">
             <div className="text-center">
@@ -679,7 +734,7 @@ export default function AdminRestaurants() {
                 <div className="bg-red-50 border border-red-200 rounded-[10px] p-4">
                   <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2"><FiAlertCircle className="w-4 h-4" /> Issues Found</h4>
                   <ul className="text-sm text-red-600 space-y-1 max-h-32 overflow-y-auto">
-                    {importErrors.map((err, i) => <li key={i}>• {err}</li>)}
+                    {importErrors.map((err, i) => <li key={i}>â¢ {err}</li>)}
                   </ul>
                 </div>
               )}
@@ -711,7 +766,7 @@ export default function AdminRestaurants() {
                             <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-green-50/30'}>
                               <td className="p-2 text-gray-500">{idx + 1}</td>
                               <td className="p-2 font-medium text-gray-900">{item.name}</td>
-                              <td className="p-2 text-gray-700">₹{item.price}</td>
+                              <td className="p-2 text-gray-700">â¹{item.price}</td>
                               <td className="p-2 text-gray-600">{item.category || 'Other'}</td>
                               <td className="p-2">
                                 <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${isVeg ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -897,7 +952,7 @@ export default function AdminRestaurants() {
 
                 {/* Min Order */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Minimum Order (₹)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Minimum Order (â¹)</label>
                   <input
                     type="number"
                     name="minimumOrder"
@@ -910,7 +965,7 @@ export default function AdminRestaurants() {
 
                 {/* Delivery Fee */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Delivery Fee (₹)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Delivery Fee (â¹)</label>
                   <input
                     type="number"
                     name="deliveryFee"
@@ -962,7 +1017,7 @@ export default function AdminRestaurants() {
                 {showCloneSection && (
                   <div className="mt-3 bg-white rounded-lg border-2 border-purple-200 p-4">
                     <p className="text-xs text-purple-600 mb-3">
-                      For chain restaurants like McDonald's, KFC — copy the entire menu from an existing branch.
+                      For chain restaurants like McDonald's, KFC â copy the entire menu from an existing branch.
                     </p>
 
                     {/* Search */}
@@ -989,7 +1044,7 @@ export default function AdminRestaurants() {
                             : 'bg-white text-gray-600 hover:bg-purple-100 border border-purple-100'
                         }`}
                       >
-                        No clone — start with empty menu
+                        No clone â start with empty menu
                       </button>
 
                       {cloneFilteredRestaurants.map((r) => {
