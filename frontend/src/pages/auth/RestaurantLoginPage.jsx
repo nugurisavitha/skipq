@@ -111,19 +111,19 @@ export default function RestaurantLoginPage() {
             <div className="relative z-10 space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <span className="text-green-400 text-sm">✓</span>
+                  <span className="text-green-400 text-sm">â</span>
                 </div>
                 <span className="text-gray-300 text-sm">Real-time order management</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <span className="text-green-400 text-sm">✓</span>
+                  <span className="text-green-400 text-sm">â</span>
                 </div>
                 <span className="text-gray-300 text-sm">Easy menu & QR code setup</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <span className="text-green-400 text-sm">✓</span>
+                  <span className="text-green-400 text-sm">â</span>
                 </div>
                 <span className="text-gray-300 text-sm">Detailed analytics & insights</span>
               </div>
@@ -176,12 +176,13 @@ export default function RestaurantLoginPage() {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="block text-sm font-semibold text-gray-700">Password</label>
-                  <Link
-                    to="#"
+                  <button
+                    type="button"
+                    onClick={() => toast('Please contact the admin to reset your password.', { icon: '\u2139\uFE0F' })}
                     className="text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium"
                   >
                     Forgot?
-                  </Link>
+                  </button>
                 </div>
                 <div className="relative group">
                   <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-[#1a1a2e] transition-colors" />
@@ -193,7 +194,7 @@ export default function RestaurantLoginPage() {
                     className={`input-field pl-12 pr-12 w-full border-1 focus:border-[#1a1a2e] focus:shadow-md focus:shadow-[#1a1a2e]/10 transition-all ${
                       errors.password ? 'border-red-500' : ''
                     }`}
-                    placeholder="••••••••"
+                    placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
                     disabled={isLoading}
                   />
                   <button
