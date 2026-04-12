@@ -420,7 +420,7 @@ export default function Menu() {
     return rows;
   };
 
-  // XLSX handling — instruct user to save as CSV since no xlsx library is available
+  // XLSX handling â instruct user to save as CSV since no xlsx library is available
   const handleXLSXFallback = () => {
     toast.error('Please save your Excel file as CSV first, then upload the CSV.');
     return null;
@@ -610,7 +610,7 @@ export default function Menu() {
                 placeholder="Search menu items..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border-2 border-dashed border-orange-100 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-primary bg-orange-50/30"
+                className="w-full pl-10 pr-4 py-3 border-2 border-dashed border-orange-100 rounded-[10px] focus:outline-none focus:ring-2 focus:ring-primary bg-orange-50/30 text-base text-gray-900"
               />
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0">
@@ -714,11 +714,11 @@ export default function Menu() {
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="font-bold text-lg text-gray-900">
-                          ₹{item.price}
+                          â¹{item.price}
                         </span>
                         {item.discountPrice && (
                           <span className="text-sm text-gray-500 line-through ml-2">
-                            ₹{item.discountPrice}
+                            â¹{item.discountPrice}
                           </span>
                         )}
                       </div>
@@ -824,7 +824,7 @@ export default function Menu() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <input
                       type="number"
-                      placeholder="Price (₹)"
+                      placeholder="Price (â¹)"
                       value={formData.price}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -838,7 +838,7 @@ export default function Menu() {
                     />
                     <input
                       type="number"
-                      placeholder="Discount Price (₹)"
+                      placeholder="Discount Price (â¹)"
                       value={formData.discountPrice}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -941,7 +941,7 @@ export default function Menu() {
                                 {cust.name}
                               </p>
                               <p className="text-sm text-gray-600">
-                                {cust.required ? 'Required' : 'Optional'} •{' '}
+                                {cust.required ? 'Required' : 'Optional'} â¢{' '}
                                 {cust.options.length} options
                               </p>
                             </div>
@@ -957,7 +957,7 @@ export default function Menu() {
                             {cust.options.map((opt, optIdx) => (
                               <p key={optIdx}>
                                 - {opt.name}{' '}
-                                {opt.price > 0 && `+₹${opt.price}`}
+                                {opt.price > 0 && `+â¹${opt.price}`}
                               </p>
                             ))}
                           </div>
@@ -1006,7 +1006,7 @@ export default function Menu() {
                           >
                             <span>{opt.name}</span>
                             <span className="text-gray-600">
-                              +₹{opt.price}
+                              +â¹{opt.price}
                             </span>
                           </div>
                         ))}
@@ -1029,7 +1029,7 @@ export default function Menu() {
                         />
                         <input
                           type="number"
-                          placeholder="Extra Price (₹)"
+                          placeholder="Extra Price (â¹)"
                           value={newOption.price}
                           onChange={(e) =>
                             setNewOption((prev) => ({
@@ -1309,7 +1309,7 @@ export default function Menu() {
                     </h4>
                     <ul className="text-sm text-red-600 space-y-1 max-h-32 overflow-y-auto">
                       {importErrors.map((err, i) => (
-                        <li key={i}>• {err}</li>
+                        <li key={i}>â¢ {err}</li>
                       ))}
                     </ul>
                   </div>
@@ -1344,8 +1344,8 @@ export default function Menu() {
                                 <td className="p-2 text-gray-500">{idx + 1}</td>
                                 <td className="p-2 font-medium text-gray-900">{item.name}</td>
                                 <td className="p-2 text-gray-700">
-                                  ₹{item.price}
-                                  {item.discountprice && <span className="text-xs text-green-600 ml-1">(₹{item.discountprice})</span>}
+                                  â¹{item.price}
+                                  {item.discountprice && <span className="text-xs text-green-600 ml-1">(â¹{item.discountprice})</span>}
                                 </td>
                                 <td className="p-2 text-gray-600">{item.category || 'Other'}</td>
                                 <td className="p-2">
