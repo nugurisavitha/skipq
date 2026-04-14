@@ -70,7 +70,10 @@ const signup = asyncHandler(async (req, res) => {
  * GET /api/delivery/agents/pending
  */
 const listPendingAgents = asyncHandler(async (req, res) => {
-  const agents = await User.find({ role: 'delivery_admin', approvalStatus: 'pending' })
+  const status = req.query.status || 'pending';
+  const filter = { role: 'delivery_admin' };
+  if (status !== 'all') filter.approvalStatus = status;
+  const agents = await User.find(filter)
     .select('-password')
     .sort({ createdAt: -1 });
   res.status(200).json({ success: true, data: { agents } });
@@ -221,7 +224,7 @@ const acceptOffer = asyncHandler(async (req, res) => {
     return res.status(410).json({ success: false, message: 'Offer no longer available' });
   }
 
-  // Atomically claim the order — only succeeds if no one else has claimed it
+  // Atomically claim the order â only succeeds if no one else has claimed it
   const claimed = await Order.findOneAndUpdate(
     { _id: orderId, deliveryPerson: null, status: { $in: ['ready', 'confirmed', 'preparing'] } },
     {
@@ -298,7 +301,7 @@ const markPickedUp = asyncHandler(async (req, res) => {
 });
 
 /**
- * Mark order delivered — credits agent's earnings
+ * Mark order delivered â credits agent's earnings
  * POST /api/delivery/orders/:id/deliver
  */
 const markDelivered = asyncHandler(async (req, res) => {
