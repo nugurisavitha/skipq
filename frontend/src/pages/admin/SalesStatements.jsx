@@ -68,12 +68,8 @@ export default function SalesStatements() {
 
   const downloadCsv = async () => {
     try {
-      // Use axios instance via salesAPI listStatements base — for CSV, hit the URL via fetch with auth
-      const token = localStorage.getItem('token') || '';
-      const url = (import.meta.env.VITE_API_URL || '/api') + `/sales/statements/export.csv?periodMonth=${periodMonth}&status=${tab}`;
-      const r = await fetch(url, { headers: token ? { Authorization: 'Bearer ' + token } : {} });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const blob = await r.blob();
+      const res = await salesAPI.exportCsv({ periodMonth, status: tab });
+      const blob = res.data instanceof Blob ? res.data : new Blob([res.data], { type: 'text/csv' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `sales-statements-${periodMonth}.csv`;
@@ -166,13 +162,13 @@ export default function SalesStatements() {
                       <div className="text-xs text-gray-500">{s.salesRep?.employeeCode || u.email}</div>
                     </td>
                     <td className="px-3 py-2">{s.periodMonth}</td>
-                    <td className="px-3 py-2 text-right">₹{(s.baseSalary || 0).toLocaleString()}</td>
-                    <td className="px-3 py-2 text-right">₹{(s.gmv || 0).toLocaleString()}</td>
-                    <td className="px-3 py-2 text-right">₹{(s.commissionAmount || 0).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right">â¹{(s.baseSalary || 0).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right">â¹{(s.gmv || 0).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right">â¹{(s.commissionAmount || 0).toLocaleString()}</td>
                     <td className="px-3 py-2 text-right">{s.activations || 0}</td>
-                    <td className="px-3 py-2 text-right">₹{(s.activationBonusTotal || 0).toLocaleString()}</td>
-                    <td className="px-3 py-2 text-right">₹{(s.adjustmentsTotal || 0).toLocaleString()}</td>
-                    <td className="px-3 py-2 text-right font-semibold">₹{(s.totalPayout || 0).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right">â¹{(s.activationBonusTotal || 0).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right">â¹{(s.adjustmentsTotal || 0).toLocaleString()}</td>
+                    <td className="px-3 py-2 text-right font-semibold">â¹{(s.totalPayout || 0).toLocaleString()}</td>
                     <td className="px-3 py-2">{statusBadge(s.status)}</td>
                     <td className="px-3 py-2 text-right whitespace-nowrap space-x-1">
                       {s.status === 'draft' && (
