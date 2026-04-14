@@ -100,10 +100,10 @@ export default function SalesPeople() {
                   <td className="px-4 py-2">{r.user?.name || '-'}</td>
                   <td className="px-4 py-2">{r.user?.email || '-'}</td>
                   <td className="px-4 py-2">{r.territory || '-'}</td>
-                  <td className="px-4 py-2 text-right">₹{(r.baseSalary || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right">â¹{(r.baseSalary || 0).toLocaleString()}</td>
                   <td className="px-4 py-2 text-right">{r.commissionPlan?.gmvPercent || 0}%</td>
-                  <td className="px-4 py-2 text-right">₹{(r.commissionPlan?.activationBonus || 0).toLocaleString()}</td>
-                  <td className="px-4 py-2 text-right">₹{(r.commissionPlan?.monthlyTargetGmv || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right">â¹{(r.commissionPlan?.activationBonus || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right">â¹{(r.commissionPlan?.monthlyTargetGmv || 0).toLocaleString()}</td>
                   <td className="px-4 py-2 text-right">
                     <Link to={`/admin/sales/${r._id}`} className="text-blue-600 hover:underline text-sm">View</Link>
                   </td>
@@ -120,10 +120,11 @@ export default function SalesPeople() {
 }
 
 function CreateRepModal({ onClose, onCreated }) {
-  const [users, setUsers] = useState([]);
-  const [loadingUsers, setLoadingUsers] = useState(false);
   const [form, setForm] = useState({
-    userId: '',
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
     employeeCode: '',
     territory: '',
     baseSalary: 0,
@@ -133,91 +134,116 @@ function CreateRepModal({ onClose, onCreated }) {
     notes: '',
   });
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    (async () => {
-      setLoadingUsers(true);
-      try {
-        const res = await adminAPI.getUsers?.({ limit: 500 });
-        const list = res?.data?.data?.users || res?.data?.users || [];
-        setUsers(list);
-      } catch (e) {
-        // best effort
-      } finally {
-        setLoadingUsers(false);
-      }
-    })();
-  }, []);
+  const upd = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!form.userId) return toast.error('Select a user');
+    setError('');
+    if (!form.name.trim() || !form.email.trim()) {
+      setError('Name and email are required');
+      return;
+    }
     setSaving(true);
     try {
-      await salesAPI.createRep(form);
-      toast.success('Sales rep created');
+      const payload = {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || undefined,
+        password: form.password || undefined,
+        employeeCode: form.employeeCode || undefined,
+        territory: form.territory || undefined,
+        baseSalary: Number(form.baseSalary) || 0,
+        gmvPercent: Number(form.gmvPercent) || 0,
+        activationBonus: Number(form.activationBonus) || 0,
+        monthlyTargetGmv: Number(form.monthlyTargetGmv) || 0,
+        notes: form.notes || undefined,
+      };
+      await salesAPI.createRep(payload);
       onCreated?.();
-      onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create');
+      const msg = err?.response?.data?.message || 'Failed to create sales rep';
+      setError(msg);
     } finally {
       setSaving(false);
     }
   };
 
-  const setField = (k) => (e) => setForm({ ...form, [k]: e.target.value });
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4">Add Sales Rep</h2>
-        <form onSubmit={submit} className="space-y-3">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b flex items-center justify-between sticky top-0 bg-white">
+          <h2 className="text-lg font-semibold">Add Sales Executive</h2>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✕</button>
+        </div>
+        <form onSubmit={submit} className="p-6 space-y-4">
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">{error}</div>
+          )}
           <div>
-            <label className="block text-sm font-medium mb-1">User *</label>
-            <select value={form.userId} onChange={setField('userId')} className="w-full border rounded px-3 py-2" required>
-              <option value="">{loadingUsers ? 'Loading...' : 'Select a user'}</option>
-              {users.map((u) => (
-                <option key={u._id} value={u._id}>{u.name || u.email} ({u.email}) - {u.role}</option>
-              ))}
-            </select>
-            <p className="text-xs text-gray-500 mt-1">The user's role will be upgraded to "sales_rep".</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1">Employee Code</label>
-              <input value={form.employeeCode} onChange={setField('employeeCode')} className="w-full border rounded px-3 py-2" placeholder="SR-001" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Territory</label>
-              <input value={form.territory} onChange={setField('territory')} className="w-full border rounded px-3 py-2" placeholder="Bangalore South" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1">Base Salary (₹/month)</label>
-              <input type="number" min="0" value={form.baseSalary} onChange={setField('baseSalary')} className="w-full border rounded px-3 py-2" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Monthly Target GMV (₹)</label>
-              <input type="number" min="0" value={form.monthlyTargetGmv} onChange={setField('monthlyTargetGmv')} className="w-full border rounded px-3 py-2" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">GMV Commission %</label>
-              <input type="number" min="0" max="100" step="0.1" value={form.gmvPercent} onChange={setField('gmvPercent')} className="w-full border rounded px-3 py-2" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Activation Bonus (₹ per restaurant)</label>
-              <input type="number" min="0" value={form.activationBonus} onChange={setField('activationBonus')} className="w-full border rounded px-3 py-2" />
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Executive Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="block text-sm">
+                <span className="text-gray-600">Full Name <span className="text-red-500">*</span></span>
+                <input type="text" required value={form.name} onChange={(e) => upd('name', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" placeholder="e.g. Priya Sharma" />
+              </label>
+              <label className="block text-sm">
+                <span className="text-gray-600">Email <span className="text-red-500">*</span></span>
+                <input type="email" required value={form.email} onChange={(e) => upd('email', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" placeholder="priya@skipq.com" />
+              </label>
+              <label className="block text-sm">
+                <span className="text-gray-600">Phone</span>
+                <input type="tel" value={form.phone} onChange={(e) => upd('phone', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" placeholder="+91..." />
+              </label>
+              <label className="block text-sm">
+                <span className="text-gray-600">Password</span>
+                <input type="password" value={form.password} onChange={(e) => upd('password', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" placeholder="Leave blank to auto-generate" />
+              </label>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Notes</label>
-            <textarea value={form.notes} onChange={setField('notes')} className="w-full border rounded px-3 py-2" rows={2} />
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Employment & Territory</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <label className="block text-sm">
+                <span className="text-gray-600">Employee Code</span>
+                <input type="text" value={form.employeeCode} onChange={(e) => upd('employeeCode', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+              </label>
+              <label className="block text-sm">
+                <span className="text-gray-600">Territory</span>
+                <input type="text" value={form.territory} onChange={(e) => upd('territory', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" placeholder="e.g. Hyderabad North" />
+              </label>
+            </div>
           </div>
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Compensation</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <label className="block text-sm">
+                <span className="text-gray-600">Base Salary</span>
+                <input type="number" min="0" value={form.baseSalary} onChange={(e) => upd('baseSalary', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+              </label>
+              <label className="block text-sm">
+                <span className="text-gray-600">GMV %</span>
+                <input type="number" min="0" step="0.01" value={form.gmvPercent} onChange={(e) => upd('gmvPercent', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+              </label>
+              <label className="block text-sm">
+                <span className="text-gray-600">Activation Bonus</span>
+                <input type="number" min="0" value={form.activationBonus} onChange={(e) => upd('activationBonus', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+              </label>
+              <label className="block text-sm">
+                <span className="text-gray-600">Monthly Target GMV</span>
+                <input type="number" min="0" value={form.monthlyTargetGmv} onChange={(e) => upd('monthlyTargetGmv', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" />
+              </label>
+            </div>
+          </div>
+          <label className="block text-sm">
+            <span className="text-gray-600">Notes</span>
+            <textarea value={form.notes} onChange={(e) => upd('notes', e.target.value)} className="mt-1 w-full border rounded px-3 py-2" rows="2" />
+          </label>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 border rounded hover:bg-gray-50">Cancel</button>
             <button type="submit" disabled={saving} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50">
-              {saving ? 'Saving...' : 'Create'}
+              {saving ? 'Saving...' : 'Create Rep'}
             </button>
           </div>
         </form>
