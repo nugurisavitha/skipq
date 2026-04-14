@@ -12,7 +12,7 @@ export default function PendingAgents() {
     setLoading(true);
     try {
       const res = await deliveryAPI.listPendingAgents();
-      setAgents(res.data?.data || res.data?.agents || []);
+      const d = res.data?.data?.agents || res.data?.agents || res.data?.data || res.data || []; setAgents(Array.isArray(d) ? d : []);
     } catch (err) {
       toast.error('Failed to load pending agents');
     } finally {
