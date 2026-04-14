@@ -27,11 +27,19 @@ const currentMonthStr = () => {
 // ---------- Sales Rep CRUD ----------
 
 // POST /api/sales/reps
-// body: { userId, employeeCode, managerId, territory, cities, baseSalary, gmvPercent, activationBonus, monthlyTargetGmv, notes }
-// Admin / Sales Manager
+// body accepts EITHER:
+//   { userId, ... }               -> attach SalesRep profile to existing user
+// OR:
+//   { name, email, phone, password?, ... } -> create user inline + SalesRep profile
+// Plus common plan fields: employeeCode, managerId, territory, cities, foodCourts,
+// baseSalary, gmvPercent, activationBonus, monthlyTargetGmv, notes
 exports.createRep = asyncHandler(async (req, res) => {
   const {
     userId,
+    name,
+    email,
+    phone,
+    password,
     employeeCode,
     managerId,
     territory,
@@ -44,18 +52,51 @@ exports.createRep = asyncHandler(async (req, res) => {
     notes,
   } = req.body;
 
-  if (!userId) return res.status(400).json({ success: false, message: 'userId required' });
-  const user = await User.findById(userId);
-  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+  let user;
+  if (userId) {
+    user = await User.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+  } else {
+    if (!name || !email) {
+      return res.status(400).json({ success: false, message: 'name and email are required' });
+    }
+    const existing = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: 'A user with this email already exists. Use the existing user.',
+        data: { existingUserId: existing._id },
+      });
+    }
+    const pwd = password && password.length >= 6 ? password : Math.random().toString(36).slice(-10) + 'A1!';
+    user = await User.create({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      phone: phone || undefined,
+      password: pwd,
+      role: 'sales_rep',
+      isVerified: true,
+    });
+  }
 
-  // Upgrade role if it is still a plain customer
+  // Upgrade role if user exists but is still a plain customer
   if (!['sales_rep', 'sales_manager'].includes(user.role)) {
     user.role = 'sales_rep';
     await user.save();
   }
 
+  // Prevent duplicate SalesRep profile for the same user
+  const dup = await SalesRep.findOne({ user: user._id });
+  if (dup) {
+    return res.status(400).json({
+      success: false,
+      message: 'This user already has a sales rep profile',
+      data: { repId: dup._id },
+    });
+  }
+
   const rep = await SalesRep.create({
-    user: userId,
+    user: user._id,
     employeeCode,
     manager: managerId || undefined,
     territory,
@@ -74,7 +115,6 @@ exports.createRep = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: { rep: populated } });
 });
 
-// GET /api/sales/reps
 exports.listReps = asyncHandler(async (req, res) => {
   const { active, territory, managerId, q } = req.query;
   const filter = {};
