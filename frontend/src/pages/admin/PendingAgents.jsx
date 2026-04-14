@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FiCheck, FiX, FiLoader, FiTruck, FiRefreshCw } from 'react-icons/fi';
+import { FiCheck, FiX, FiLoader, FiTruck, FiRefreshCw, FiSearch } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { deliveryAPI } from '../../services/api';
 
@@ -15,6 +15,7 @@ export default function PendingAgents() {
   const [actingId, setActingId] = useState(null);
   const [agents, setAgents] = useState([]);
   const [tab, setTab] = useState('pending');
+  const [query, setQuery] = useState('');
 
   const load = async (status = tab) => {
     setLoading(true);
@@ -57,7 +58,16 @@ export default function PendingAgents() {
       approved: 'bg-green-100 text-green-800',
       rejected: 'bg-red-100 text-red-800',
     };
-    return (
+    const q = query.trim().toLowerCase();
+  const filtered = q
+    ? agents.filter((a) =>
+        [a.name, a.email, a.phone]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(q))
+      )
+    : agents;
+
+  return (
       <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[s] || 'bg-gray-100 text-gray-700'}`}>
         {s || 'unknown'}
       </span>
@@ -94,12 +104,23 @@ export default function PendingAgents() {
         ))}
       </div>
 
+      <div className="mb-4 relative max-w-md">
+        <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search by name, email, or phone..."
+          className="w-full pl-10 pr-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       {loading ? (
         <div className="flex items-center gap-2 text-gray-600">
           <FiLoader className="animate-spin" /> Loading...
         </div>
-      ) : agents.length === 0 ? (
-        <div className="text-gray-500">No {tab === 'all' ? '' : tab} agents.</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-gray-500">{q ? `No agents match "${query}".` : `No ${tab === 'all' ? '' : tab} agents.`}</div>
       ) : (
         <div className="overflow-x-auto bg-white shadow rounded">
           <table className="min-w-full divide-y divide-gray-200">
@@ -114,7 +135,7 @@ export default function PendingAgents() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {agents.map((a) => (
+              {filtered.map((a) => (
                 <tr key={a._id}>
                   <td className="px-4 py-2">{a.name || '-'}</td>
                   <td className="px-4 py-2">{a.email || '-'}</td>
