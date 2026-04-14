@@ -49,11 +49,15 @@ const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 const DeliveryDashboard = lazy(() => import('./pages/delivery/Dashboard'));
 const DeliveryOrders = lazy(() => import('./pages/delivery/Orders'));
 const DeliveryHistory = lazy(() => import('./pages/delivery/History'));
+const DeliverySignup = lazy(() => import('./pages/delivery/Signup'));
+const PendingAgents = lazy(() => import('./pages/admin/PendingAgents'));
 
 // Restaurant auth pages (standalone layout)
 const RestaurantRegisterPage = lazy(() => import('./pages/auth/RestaurantRegisterPage'));
 const RestaurantLoginPage = lazy(() => import('./pages/auth/RestaurantLoginPage'));
 
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const Unauthorized = lazy(() => import('./pages/Unauthorized'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
@@ -84,6 +88,8 @@ export default function App() {
             <Route path="/login" element={<OTPLoginPage />} />
             <Route path="/login/email" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/restaurants" element={<RestaurantsPage />} />
             <Route path="/restaurant/:slug" element={<RestaurantDetailPage />} />
             <Route path="/scan" element={<QRScanPage />} />
@@ -151,6 +157,9 @@ export default function App() {
           <Route path="/restaurant/register" element={<RestaurantRegisterPage />} />
           <Route path="/restaurant/login" element={<RestaurantLoginPage />} />
 
+          {/* Delivery agent public signup */}
+          <Route path="/delivery/signup" element={<DeliverySignup />} />
+
           {/* Restaurant Admin Routes - with AdminLayout */}
           <Route
             path="/restaurant-admin/*"
@@ -183,6 +192,7 @@ export default function App() {
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="food-courts" element={<AdminFoodCourts />} />
+                    <Route path="pending-agents" element={<PendingAgents />} />
                     <Route path="settings" element={<AdminSettings />} />
                   </Routes>
                 </AdminLayout>
