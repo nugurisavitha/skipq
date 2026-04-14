@@ -69,7 +69,9 @@ export default function FoodCourtCartPage() {
 
   const subtotal = calculateSubtotal();
   const tax = subtotal * 0.05;
-  const total = subtotal + tax;
+  // Convenience fee: Rs 10 + 18% GST = Rs 11.80
+  const convenienceFee = 11.80;
+  const total = subtotal + tax + convenienceFee;
 
   // Handle place order
   const handlePlaceOrder = async () => {
@@ -374,6 +376,12 @@ export default function FoodCourtCartPage() {
                 <div className="flex justify-between items-center text-gray-700 pb-3">
                   <span>Tax (5%)</span>
                   <span className="font-semibold">₹{tax.toFixed(2)}</span>
+                </div>
+
+                {/* Convenience Fee */}
+                <div className="flex justify-between items-center text-gray-700 pb-3">
+                  <span>Convenience Fee (₹10 + GST)</span>
+                  <span className="font-semibold">₹{convenienceFee.toFixed(2)}</span>
                 </div>
 
                 {/* Total */}
