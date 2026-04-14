@@ -155,7 +155,9 @@ const createOrder = asyncHandler(async (req, res, next) => {
   // Calculate totals
   const tax = Math.round((subtotal * restaurant.taxRate) / 100);
   const deliveryFee = orderType === 'delivery' ? restaurant.deliveryFee : 0;
-  const total = subtotal + tax + deliveryFee;
+  // Convenience fee: Rs 10 + 18% GST = Rs 11.80
+  const convenienceFee = 11.80;
+  const total = subtotal + tax + deliveryFee + convenienceFee;
 
   // No minimum order restriction — customers can order any amount
 
@@ -187,6 +189,7 @@ const createOrder = asyncHandler(async (req, res, next) => {
     subtotal,
     tax,
     deliveryFee,
+    convenienceFee,
     total,
     paymentMethod,
     specialInstructions,
