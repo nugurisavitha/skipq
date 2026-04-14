@@ -1,4 +1,4 @@
-const asyncHandler = require('express-async-handler');
+const asyncHandler = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const SalesRep = require('../models/SalesRep');
