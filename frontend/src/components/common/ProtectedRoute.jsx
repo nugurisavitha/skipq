@@ -20,6 +20,7 @@ export default function ProtectedRoute({ children, requiredRole }) {
     restaurant: 'restaurant_admin',
     admin: ['admin', 'super_admin'],
     delivery: 'delivery_admin',
+    sales: ['sales_rep', 'sales_manager', 'finance'],
   };
 
   const allowedRoles = roleMap[requiredRole] || requiredRole;
