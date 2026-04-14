@@ -49,6 +49,8 @@ const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 const DeliveryDashboard = lazy(() => import('./pages/delivery/Dashboard'));
 const DeliveryOrders = lazy(() => import('./pages/delivery/Orders'));
 const DeliveryHistory = lazy(() => import('./pages/delivery/History'));
+const DeliverySignup = lazy(() => import('./pages/delivery/Signup'));
+const PendingAgents = lazy(() => import('./pages/admin/PendingAgents'));
 
 // Restaurant auth pages (standalone layout)
 const RestaurantRegisterPage = lazy(() => import('./pages/auth/RestaurantRegisterPage'));
@@ -155,6 +157,9 @@ export default function App() {
           <Route path="/restaurant/register" element={<RestaurantRegisterPage />} />
           <Route path="/restaurant/login" element={<RestaurantLoginPage />} />
 
+          {/* Delivery agent public signup */}
+          <Route path="/delivery/signup" element={<DeliverySignup />} />
+
           {/* Restaurant Admin Routes - with AdminLayout */}
           <Route
             path="/restaurant-admin/*"
@@ -187,6 +192,7 @@ export default function App() {
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="food-courts" element={<AdminFoodCourts />} />
+                    <Route path="pending-agents" element={<PendingAgents />} />
                     <Route path="settings" element={<AdminSettings />} />
                   </Routes>
                 </AdminLayout>
