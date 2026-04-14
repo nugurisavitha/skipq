@@ -115,6 +115,11 @@ const orderSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    convenienceFee: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     discount: {
       type: Number,
       default: 0,
