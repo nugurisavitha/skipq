@@ -459,7 +459,9 @@ const createFoodCourtOrder = asyncHandler(async (req, res) => {
   // Calculate tax (use 5% as default or average of restaurant tax rates)
   const taxRate = 5; // default 5%
   const tax = Math.round((subtotal * taxRate) / 100);
-  const total = subtotal + tax;
+  // Convenience fee: Rs 10 + 18% GST = Rs 11.80
+  const convenienceFee = 11.80;
+  const total = subtotal + tax + convenienceFee;
 
   // Generate order number with 'FC-' prefix
   const orderNumber = `FC-${Date.now()}`;
@@ -487,6 +489,7 @@ const createFoodCourtOrder = asyncHandler(async (req, res) => {
     orderType: 'dine_in',
     subtotal,
     tax,
+    convenienceFee,
     total,
     paymentMethod,
     specialInstructions: specialInstructions || '',
