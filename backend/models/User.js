@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
     // Role-based access
     role: {
       type: String,
-      enum: ['super_admin', 'admin', 'restaurant_admin', 'delivery_admin', 'customer'],
+      enum: ['super_admin', 'admin', 'restaurant_admin', 'delivery_admin', 'customer', 'sales_rep', 'sales_manager', 'finance'],
       default: 'customer',
     },
 
