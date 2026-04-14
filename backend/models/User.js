@@ -76,6 +76,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isOnline: {
+      type: Boolean,
+      default: false,
+    },
     currentLocation: {
       type: {
         type: String,
@@ -86,6 +90,49 @@ const userSchema = new mongoose.Schema(
         type: [Number], // [longitude, latitude]
         default: [0, 0],
       },
+    },
+    lastLocationUpdate: {
+      type: Date,
+      default: null,
+    },
+
+    // Delivery agent specific fields
+    approvalStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'approved', // non-agents are auto-approved
+    },
+    approvalNote: {
+      type: String,
+      default: '',
+    },
+    vehicleType: {
+      type: String,
+      enum: ['bike', 'scooter', 'car', 'bicycle', 'other'],
+    },
+    vehicleNumber: {
+      type: String,
+      trim: true,
+    },
+    rateCard: {
+      baseFare: {
+        type: Number,
+        default: 30,
+        min: 0,
+      },
+      perKmRate: {
+        type: Number,
+        default: 8,
+        min: 0,
+      },
+    },
+    earningsTotal: {
+      type: Number,
+      default: 0,
+    },
+    deliveriesCompleted: {
+      type: Number,
+      default: 0,
     },
 
     // Metadata
