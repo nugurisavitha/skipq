@@ -145,7 +145,7 @@ export const deliveryAPI = {
   markPickedUp: (orderId) => instance.post(`/delivery/orders/${orderId}/pickup`),
   markDelivered: (orderId) => instance.post(`/delivery/orders/${orderId}/deliver`),
   // Admin
-  listPendingAgents: () => instance.get('/delivery/agents/pending'),
+  listPendingAgents: (status) => instance.get('/delivery/agents/pending', { params: status ? { status } : {} }),
   setAgentApproval: (id, data) => instance.patch(`/delivery/agents/${id}/approval`, data),
   // Legacy
   getAssigned: (params) => instance.get('/delivery/orders', { params }),
