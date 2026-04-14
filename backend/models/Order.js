@@ -175,6 +175,19 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
+    // Agent payout for this delivery (computed from agent's rate card at accept time)
+    deliveryAgentPayout: {
+      type: Number,
+      default: 0,
+    },
+    deliveryTripDistanceKm: {
+      type: Number,
+      default: 0,
+    },
+    offerBroadcastAt: Date,
+    offerAcceptedAt: Date,
+    pickedUpAt: Date,
+    deliveredAt: Date,
     estimatedDeliveryTime: Date,
 
     // Estimated preparation time in minutes (set by restaurant admin)
