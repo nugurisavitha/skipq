@@ -51,6 +51,10 @@ const DeliveryOrders = lazy(() => import('./pages/delivery/Orders'));
 const DeliveryHistory = lazy(() => import('./pages/delivery/History'));
 const DeliverySignup = lazy(() => import('./pages/delivery/Signup'));
 const PendingAgents = lazy(() => import('./pages/admin/PendingAgents'));
+const SalesPeople = lazy(() => import('./pages/admin/SalesPeople'));
+const SalesRepDetail = lazy(() => import('./pages/admin/SalesRepDetail'));
+const SalesStatements = lazy(() => import('./pages/admin/SalesStatements'));
+const SalesRepDashboard = lazy(() => import('./pages/sales/Dashboard'));
 
 // Restaurant auth pages (standalone layout)
 const RestaurantRegisterPage = lazy(() => import('./pages/auth/RestaurantRegisterPage'));
@@ -193,7 +197,25 @@ export default function App() {
                     <Route path="analytics" element={<AdminAnalytics />} />
                     <Route path="food-courts" element={<AdminFoodCourts />} />
                     <Route path="pending-agents" element={<PendingAgents />} />
+                    <Route path="sales" element={<SalesPeople />} />
+                    <Route path="sales/statements" element={<SalesStatements />} />
+                    <Route path="sales/:id" element={<SalesRepDetail />} />
                     <Route path="settings" element={<AdminSettings />} />
+                  </Routes>
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Sales Rep self-service */}
+          <Route
+            path="/sales/*"
+            element={
+              <ProtectedRoute requiredRole="sales">
+                <AdminLayout>
+                  <Routes>
+                    <Route path="dashboard" element={<SalesRepDashboard />} />
+                    <Route path="*" element={<SalesRepDashboard />} />
                   </Routes>
                 </AdminLayout>
               </ProtectedRoute>
