@@ -643,6 +643,14 @@ export default function OrderDetailPage() {
                     </span>
                   </div>
                 )}
+                {order.convenienceFee > 0 && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>Convenience Fee (₹10 + GST)</span>
+                    <span className="font-medium">
+                      ₹{order.convenienceFee.toFixed(2)}
+                    </span>
+                  </div>
+                )}
                 {order.discount && (
                   <div className="flex justify-between text-green-600 font-bold">
                     <span>Discount</span>
