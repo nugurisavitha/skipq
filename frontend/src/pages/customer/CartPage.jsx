@@ -136,7 +136,9 @@ export default function CartPage() {
   const subtotal = getSubtotal();
   const tax = getTax();
   const deliveryFee = orderType === 'delivery' ? getDeliveryFee() : 0;
-  const total = subtotal + tax + deliveryFee;
+  // Convenience fee: Rs 10 + 18% GST = Rs 11.80
+  const convenienceFee = 11.80;
+  const total = subtotal + tax + deliveryFee + convenienceFee;
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-b from-gray-50 to-white">
@@ -438,6 +440,10 @@ export default function CartPage() {
                     <span className="font-semibold">₹{deliveryFee.toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-gray-600">
+                  <span>Convenience Fee (₹10 + GST)</span>
+                  <span className="font-semibold">₹{convenienceFee.toFixed(2)}</span>
+                </div>
               </div>
 
               <div className="flex justify-between text-2xl font-bold text-white bg-gradient-to-r from-primary to-primary-dark p-4 rounded-[12px] mb-6">
