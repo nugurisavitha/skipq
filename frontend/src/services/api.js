@@ -201,6 +201,7 @@ export const salesAPI = {
   financeLock: (id) => instance.post(`/sales/statements/${id}/finance-lock`),
   markPaid: (id) => instance.post(`/sales/statements/${id}/mark-paid`),
   reopenStatement: (id) => instance.post(`/sales/statements/${id}/reopen`),
+  exportCsv: (params) => instance.get('/sales/statements/export.csv', { params, responseType: 'blob' }),
   exportCsvUrl: (params) => {
     const qs = new URLSearchParams(params || {}).toString();
     return `/sales/statements/export.csv${qs ? '?' + qs : ''}`;
