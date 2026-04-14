@@ -178,6 +178,38 @@ export const foodCourtsAPI = {
     instance.get(`/food-courts/orders/restaurant/${restaurantId}`, { params }),
 };
 
+
+// Sales People API
+export const salesAPI = {
+  // Reps
+  listReps: (params) => instance.get('/sales/reps', { params }),
+  createRep: (data) => instance.post('/sales/reps', data),
+  getRep: (id) => instance.get(`/sales/reps/${id}`),
+  updateRep: (id, data) => instance.patch(`/sales/reps/${id}`, data),
+  deactivateRep: (id) => instance.delete(`/sales/reps/${id}`),
+  listRepRestaurants: (id) => instance.get(`/sales/reps/${id}/restaurants`),
+
+  // Attribution
+  assignRestaurant: (data) => instance.post('/sales/attribution', data),
+
+  // Statements
+  listStatements: (params) => instance.get('/sales/statements', { params }),
+  getStatement: (id) => instance.get(`/sales/statements/${id}`),
+  generateStatements: (data) => instance.post('/sales/statements/generate', data || {}),
+  addAdjustment: (id, data) => instance.post(`/sales/statements/${id}/adjustments`, data),
+  managerApprove: (id) => instance.post(`/sales/statements/${id}/manager-approve`),
+  financeLock: (id) => instance.post(`/sales/statements/${id}/finance-lock`),
+  markPaid: (id) => instance.post(`/sales/statements/${id}/mark-paid`),
+  reopenStatement: (id) => instance.post(`/sales/statements/${id}/reopen`),
+  exportCsvUrl: (params) => {
+    const qs = new URLSearchParams(params || {}).toString();
+    return `/sales/statements/export.csv${qs ? '?' + qs : ''}`;
+  },
+
+  // Rep self-service
+  getMyProfile: (params) => instance.get('/sales/me', { params }),
+};
+
 // Export organized API methods
 const api = {
   auth: authAPI,
@@ -189,6 +221,7 @@ const api = {
   admin: adminAPI,
   delivery: deliveryAPI,
   foodCourts: foodCourtsAPI,
+  sales: salesAPI,
 };
 
 export default api;
