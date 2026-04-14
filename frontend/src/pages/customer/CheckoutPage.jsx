@@ -56,8 +56,10 @@ export default function CheckoutPage() {
   const subtotal = getSubtotal();
   const tax = getTax();
   const deliveryFee = state.orderType === 'delivery' ? getDeliveryFee() : 0;
+  // Convenience fee: Rs 10 + 18% GST = Rs 11.80
+  const convenienceFee = 11.80;
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
-  const total = subtotal + tax + deliveryFee - discountAmount;
+  const total = subtotal + tax + deliveryFee + convenienceFee - discountAmount;
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -427,6 +429,10 @@ export default function CheckoutPage() {
                     <span className="font-medium">₹{deliveryFee.toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-gray-600">
+                  <span>Convenience Fee (₹10 + GST)</span>
+                  <span className="font-medium">₹{convenienceFee.toFixed(2)}</span>
+                </div>
                 {appliedCoupon && (
                   <div className="flex justify-between text-green-600 font-bold">
                     <span>Discount</span>
