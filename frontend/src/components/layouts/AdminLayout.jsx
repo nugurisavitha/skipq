@@ -48,6 +48,7 @@ export default function AdminLayout({ children }) {
         { label: 'Restaurants', path: '/admin/restaurants', icon: FiCoffee },
         { label: 'Orders', path: '/admin/orders', icon: FiShoppingCart },
         { label: 'Users', path: '/admin/users', icon: FiUsers },
+        { label: 'Delivery Agents', path: '/admin/pending-agents', icon: FiTruck },
         { label: 'Analytics', path: '/admin/analytics', icon: FiBarChart2 },
         { label: 'Settings', path: '/admin/settings', icon: FiSettings }
       );
