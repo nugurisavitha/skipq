@@ -58,7 +58,14 @@ export default function PendingAgents() {
       approved: 'bg-green-100 text-green-800',
       rejected: 'bg-red-100 text-red-800',
     };
-    const q = query.trim().toLowerCase();
+  return (
+      <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[s] || 'bg-gray-100 text-gray-700'}`}>
+        {s || 'unknown'}
+      </span>
+    );
+  };
+
+  const q = query.trim().toLowerCase();
   const filtered = q
     ? agents.filter((a) =>
         [a.name, a.email, a.phone]
@@ -66,13 +73,6 @@ export default function PendingAgents() {
           .some((v) => String(v).toLowerCase().includes(q))
       )
     : agents;
-
-  return (
-      <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[s] || 'bg-gray-100 text-gray-700'}`}>
-        {s || 'unknown'}
-      </span>
-    );
-  };
 
   return (
     <div className="p-6">
