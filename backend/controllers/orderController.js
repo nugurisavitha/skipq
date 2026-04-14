@@ -475,6 +475,18 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     console.error('Socket notification failed:', socketErr.message);
   }
 
+  // Broadcast to nearby delivery agents when a delivery order becomes ready
+  try {
+    if (status === 'ready' && order.orderType === 'delivery' && !order.deliveryPerson) {
+      const { broadcastOrderToAgents } = require('./deliveryAgentController');
+      const io = req.app.get('io');
+      const count = await broadcastOrderToAgents(order, io);
+      console.log(`Delivery offer broadcast to ${count} nearby agents for order ${order.orderNumber}`);
+    }
+  } catch (broadcastErr) {
+    console.error('Agent broadcast failed:', broadcastErr.message);
+  }
+
   res.status(200).json({
     success: true,
     message: 'Order status updated',
