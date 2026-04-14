@@ -130,6 +130,24 @@ export const adminAPI = {
 
 // Delivery API
 export const deliveryAPI = {
+  // Agent self-service
+  signup: (data) => instance.post('/delivery/signup', data),
+  getMe: () => instance.get('/delivery/me'),
+  updateRateCard: (data) => instance.patch('/delivery/me/rate-card', data),
+  setOnline: (data) => instance.patch('/delivery/me/online', data),
+  updateAgentLocation: (data) => instance.patch('/delivery/me/location', data),
+  getActiveTrip: () => instance.get('/delivery/me/active-trip'),
+  // Offers
+  getOffers: () => instance.get('/delivery/offers'),
+  acceptOffer: (orderId) => instance.post(`/delivery/offers/${orderId}/accept`),
+  rejectOffer: (orderId) => instance.post(`/delivery/offers/${orderId}/reject`),
+  // Trip actions
+  markPickedUp: (orderId) => instance.post(`/delivery/orders/${orderId}/pickup`),
+  markDelivered: (orderId) => instance.post(`/delivery/orders/${orderId}/deliver`),
+  // Admin
+  listPendingAgents: () => instance.get('/delivery/agents/pending'),
+  setAgentApproval: (id, data) => instance.patch(`/delivery/agents/${id}/approval`, data),
+  // Legacy
   getAssigned: (params) => instance.get('/delivery/orders', { params }),
   updateStatus: (orderId, status) =>
     instance.patch(`/delivery/orders/${orderId}/status`, { status }),
