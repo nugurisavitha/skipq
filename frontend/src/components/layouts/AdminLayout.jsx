@@ -14,7 +14,8 @@ import {
   FiGrid,
   FiTruck,
   FiClock,
-, FiDollarSign} from 'react-icons/fi';
+  FiDollarSign,
+} from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function AdminLayout({ children }) {
