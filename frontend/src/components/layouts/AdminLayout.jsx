@@ -14,7 +14,7 @@ import {
   FiGrid,
   FiTruck,
   FiClock,
-} from 'react-icons/fi';
+, FiDollarSign} from 'react-icons/fi';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function AdminLayout({ children }) {
@@ -49,6 +49,7 @@ export default function AdminLayout({ children }) {
         { label: 'Orders', path: '/admin/orders', icon: FiShoppingCart },
         { label: 'Users', path: '/admin/users', icon: FiUsers },
         { label: 'Delivery Agents', path: '/admin/pending-agents', icon: FiTruck },
+      { label: 'Sales People', path: '/admin/sales', icon: FiDollarSign },
         { label: 'Analytics', path: '/admin/analytics', icon: FiBarChart2 },
         { label: 'Settings', path: '/admin/settings', icon: FiSettings }
       );
