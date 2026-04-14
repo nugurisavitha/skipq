@@ -7,7 +7,7 @@ import {
 import toast from 'react-hot-toast';
 import { deliveryAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
-import { useSocket } from '../../context/SocketContext';
+import { useSocket } from '../../hooks/useSocket';
 
 /**
  * Mobile-first Delivery Agent Dashboard.
