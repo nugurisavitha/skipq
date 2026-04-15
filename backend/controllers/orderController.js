@@ -159,9 +159,9 @@ const createOrder = asyncHandler(async (req, res, next) => {
   const convenienceFee = 11.80;
   const total = subtotal + tax + deliveryFee + convenienceFee;
 
-  // No minimum order restriction â customers can order any amount
+  // No minimum order restriction — customers can order any amount
 
-  // Generate token number â daily counter per restaurant (resets each day)
+  // Generate token number — daily counter per restaurant (resets each day)
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const lastOrderToday = await Order.findOne({
