@@ -477,6 +477,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 
   // Broadcast to nearby delivery agents when a delivery order becomes ready
   try {
+    console.log('[BROADCAST_TRIGGER_DIAG]', { status, orderType: order.orderType, hasDeliveryPerson: !!order.deliveryPerson, orderId: order._id && order._id.toString() });
     if (['confirmed','preparing','ready','out_for_delivery'].includes(status) && order.orderType === 'delivery' && !order.deliveryPerson) {
       const { broadcastOrderToAgents } = require('./deliveryAgentController');
       const io = req.app.get('io');
