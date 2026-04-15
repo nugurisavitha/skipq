@@ -224,7 +224,7 @@ const acceptOffer = asyncHandler(async (req, res) => {
     return res.status(410).json({ success: false, message: 'Offer no longer available' });
   }
 
-  // Atomically claim the order ÃÂ¢ÃÂÃÂ only succeeds if no one else has claimed it
+  // Atomically claim the order — only succeeds if no one else has claimed it
   const claimed = await Order.findOneAndUpdate(
     { _id: orderId, deliveryPerson: null, status: { $in: ['ready', 'confirmed', 'preparing'] } },
     {
@@ -301,7 +301,7 @@ const markPickedUp = asyncHandler(async (req, res) => {
 });
 
 /**
- * Mark order delivered ÃÂ¢ÃÂÃÂ credits agent's earnings
+ * Mark order delivered — credits agent's earnings
  * POST /api/delivery/orders/:id/deliver
  */
 const markDelivered = asyncHandler(async (req, res) => {
