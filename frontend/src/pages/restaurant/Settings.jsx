@@ -164,6 +164,7 @@ export default function Settings() {
         operatingHours: formData.operatingHours,
         selfService: formData.selfService,
         bankDetails: formData.bankDetails,
+        ...(formData.location && formData.location.coordinates ? { location: formData.location } : {}),
       };
 
       await restaurantsAPI.update(restaurant._id, payload);
@@ -264,9 +265,13 @@ export default function Settings() {
               </label>
               <LocationPickerButton
                 buttonLabel="Detect Restaurant Location"
-                onLocationSelect={({ address }) => {
-                  setFormData((prev) => ({ ...prev, address }));
-                }}
+                onLocationSelect={({ address, lat, lng }) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  address,
+                  location: (lat != null && lng != null) ? { type: 'Point', coordinates: [Number(lng), Number(lat)] } : prev.location,
+                }));
+              }}
                 className="mb-2"
               />
               <textarea
