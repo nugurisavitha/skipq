@@ -212,7 +212,7 @@ const updateRestaurant = asyncHandler(async (req, res) => {
     });
   }
 
-  const { name, description, cuisine, phone, email, logo, coverImage, preparationTime, minimumOrder, deliveryFee, taxRate, openingHours, selfService } = req.body;
+  const { name, description, cuisine, cuisines, phone, email, address, location, logo, logoUrl, coverImage, coverImageUrl, preparationTime, averagePreparationTime, minimumOrder, minimumOrderAmount, deliveryFee, taxRate, openingHours, selfService, bankDetails } = req.body;
 
   // Update fields
   if (name) restaurant.name = name;
@@ -228,6 +228,16 @@ const updateRestaurant = asyncHandler(async (req, res) => {
   if (taxRate) restaurant.taxRate = taxRate;
   if (openingHours) restaurant.openingHours = openingHours;
   if (typeof selfService === 'boolean') restaurant.selfService = selfService;
+  if (address) restaurant.address = address;
+  if (location && location.coordinates && Array.isArray(location.coordinates) && location.coordinates.length === 2) {
+    restaurant.location = { type: 'Point', coordinates: [Number(location.coordinates[0]), Number(location.coordinates[1])] };
+  }
+  if (bankDetails) restaurant.bankDetails = bankDetails;
+  if (cuisines) restaurant.cuisine = cuisines;
+  if (logoUrl) restaurant.logo = logoUrl;
+  if (coverImageUrl) restaurant.coverImage = coverImageUrl;
+  if (averagePreparationTime) restaurant.preparationTime = averagePreparationTime;
+  if (minimumOrderAmount !== undefined) restaurant.minimumOrder = minimumOrderAmount;
 
   await restaurant.save();
 
