@@ -49,7 +49,7 @@ export default function DeliveryDashboard() {
         perKmRate: me?.rateCard?.perKmRate ?? 8,
       });
       setOffers(offersRes.data?.data || offersRes.data?.offers || []);
-      setActiveTrip(tripRes.data?.data?.order || tripRes.data?.order || null);
+      setActiveTrip(tripRes.data?.data || tripRes.data?.order || null);
 
       // Earnings
       try {
@@ -313,7 +313,7 @@ export default function DeliveryDashboard() {
         </div>
 
         {/* Active trip */}
-        {activeTrip?._id && (
+        {activeTrip && (
           <div className="bg-white rounded-2xl shadow-sm p-4 border-l-4 border-primary">
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-bold text-gray-900 flex items-center gap-2"><FiTruck /> Active Trip</h2>
