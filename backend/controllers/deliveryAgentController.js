@@ -7,7 +7,7 @@ const { calculateDistance, validateEmail, validatePhone } = require('../utils/he
 // Radius (km) within which to broadcast offers
 const BROADCAST_RADIUS_KM = parseFloat(process.env.DELIVERY_BROADCAST_RADIUS_KM || 5);
 // Offer validity window in seconds
-const OFFER_TTL_SECONDS = parseInt(process.env.DELIVERY_OFFER_TTL_SECONDS || 60);
+const OFFER_TTL_SECONDS = parseInt(process.env.DELIVERY_OFFER_TTL_SECONDS || 600);
 
 /**
  * Compute expected payout from agent's rate card and trip distance
@@ -224,7 +224,7 @@ const acceptOffer = asyncHandler(async (req, res) => {
     return res.status(410).json({ success: false, message: 'Offer no longer available' });
   }
 
-  // Atomically claim the order Ã¢ÂÂ only succeeds if no one else has claimed it
+  // Atomically claim the order ÃÂ¢ÃÂÃÂ only succeeds if no one else has claimed it
   const claimed = await Order.findOneAndUpdate(
     { _id: orderId, deliveryPerson: null, status: { $in: ['ready', 'confirmed', 'preparing'] } },
     {
@@ -301,7 +301,7 @@ const markPickedUp = asyncHandler(async (req, res) => {
 });
 
 /**
- * Mark order delivered Ã¢ÂÂ credits agent's earnings
+ * Mark order delivered ÃÂ¢ÃÂÃÂ credits agent's earnings
  * POST /api/delivery/orders/:id/deliver
  */
 const markDelivered = asyncHandler(async (req, res) => {
