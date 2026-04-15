@@ -50,7 +50,7 @@ router.get('/stats', authorize('delivery_admin'), deliveryController.getDelivery
 
 
 // Diagnostic endpoint for delivery agent - reports own state and recent offers
-router.get('/_diag', authMiddleware, async (req, res) => {
+router.get('/diagnostics', authMiddleware, async (req, res) => {
   try {
     const User = require('../models/User');
     const DeliveryOffer = require('../models/DeliveryOffer');
