@@ -100,10 +100,10 @@ export default function SalesPeople() {
                   <td className="px-4 py-2">{r.user?.name || '-'}</td>
                   <td className="px-4 py-2">{r.user?.email || '-'}</td>
                   <td className="px-4 py-2">{r.territory || '-'}</td>
-                  <td className="px-4 py-2 text-right">â¹{(r.baseSalary || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right">₹{(r.baseSalary || 0).toLocaleString()}</td>
                   <td className="px-4 py-2 text-right">{r.commissionPlan?.gmvPercent || 0}%</td>
-                  <td className="px-4 py-2 text-right">â¹{(r.commissionPlan?.activationBonus || 0).toLocaleString()}</td>
-                  <td className="px-4 py-2 text-right">â¹{(r.commissionPlan?.monthlyTargetGmv || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right">₹{(r.commissionPlan?.activationBonus || 0).toLocaleString()}</td>
+                  <td className="px-4 py-2 text-right">₹{(r.commissionPlan?.monthlyTargetGmv || 0).toLocaleString()}</td>
                   <td className="px-4 py-2 text-right">
                     <Link to={`/admin/sales/${r._id}`} className="text-blue-600 hover:underline text-sm">View</Link>
                   </td>
