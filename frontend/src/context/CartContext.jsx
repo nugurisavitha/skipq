@@ -50,9 +50,14 @@ export default function CartProvider({ children }) {
     const restId = getId(restaurantInfo);
     const itemId = getId(item);
 
+    // Determine if this is a food court order:
+    // either explicitly passed fcId, or cart already has foodCourtId
+    const isFoodCourtOrder = !!(fcId || foodCourtId);
+
     // Food court orders allow multiple restaurants
-    if (fcId) {
-      setFoodCourtId(fcId);
+    if (isFoodCourtOrder) {
+      const activeFcId = fcId || foodCourtId;
+      setFoodCourtId(activeFcId);
       if (!restaurantId) {
         setRestaurantId(restId);
         setRestaurantData({ ...restaurantInfo, id: restId });
@@ -71,8 +76,8 @@ export default function CartProvider({ children }) {
           id: itemId,
           quantity: item.quantity || 1,
           restaurantId: restId,
-          restaurantName: restaurantInfo.name,
-          restaurantSlug: restaurantInfo.slug,
+          restaurantName: restaurantInfo.name || '',
+          restaurantSlug: restaurantInfo.slug || '',
         }];
       });
       return;
