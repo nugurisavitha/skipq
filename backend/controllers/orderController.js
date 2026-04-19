@@ -12,7 +12,7 @@ const razorpayService = require('../services/razorpayService');
  * Access: customer
  */
 const createOrder = asyncHandler(async (req, res, next) => {
-  const { restaurantId, items, orderType, tableNumber, scheduledFor, deliveryAddress, specialInstructions, paymentMethod } = req.body;
+  const { restaurantId, items, orderType, tableNumber, scheduledFor, deliveryAddress, specialInstructions, paymentMethod, foodCourtId } = req.body;
 
   // Validation
   if (!restaurantId || !items || !Array.isArray(items) || items.length === 0) {
@@ -53,7 +53,8 @@ const createOrder = asyncHandler(async (req, res, next) => {
   }
 
   // For dine-in orders, validate table and scheduled time
-  if (orderType === 'dine_in') {
+  // Food court orders are dine_in but use counter pickup with token — no table needed
+  if (orderType === 'dine_in' && !foodCourtId) {
     // Self-service restaurants don't require a table number
     // Customers order from their phone and pick up when ready
     if (!restaurant.selfService) {
