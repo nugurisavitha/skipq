@@ -49,23 +49,5 @@ router.patch('/location', authorize('delivery_admin'), deliveryController.update
 router.get('/stats', authorize('delivery_admin'), deliveryController.getDeliveryStats);
 
 
-// Diagnostic endpoint for delivery agent - reports own state and recent offers
-router.get('/diagnostics', authMiddleware, async (req, res) => {
-  try {
-    const User = require('../models/User');
-    const DeliveryOffer = require('../models/DeliveryOffer');
-    const Order = require('../models/Order');
-    const Restaurant = require('../models/Restaurant');
-    const me = await User.findById(req.user.id).select('role approvalStatus isOnline isActive currentLocation rateCard email name');
-    const offers = await DeliveryOffer.find({ agent: req.user.id }).sort({ createdAt: -1 }).limit(10).lean();
-    const allOffersCount = await DeliveryOffer.countDocuments({});
-    const recentDeliveryOrders = await Order.find({ orderType: 'delivery' }).sort({ createdAt: -1 }).limit(5).select('_id status orderType deliveryPerson restaurant createdAt').lean();
-    const restaurantsWithGeo = await Restaurant.countDocuments({ 'location.coordinates.0': { $exists: true } });
-    const restaurantsTotal = await Restaurant.countDocuments({});
-    res.json({ me, offers, allOffersCount, recentDeliveryOrders, restaurantsWithGeo, restaurantsTotal, serverTime: new Date() });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
 
 module.exports = router;
