@@ -37,8 +37,10 @@ export default function CartPage() {
     restaurantData,
     dineInInfo,
     foodCourtId,
+    getItemsByRestaurant,
   } = useCart();
   const isFoodCourt = !!foodCourtId;
+  const restaurantGroups = isFoodCourt ? getItemsByRestaurant() : [];
 
   const { getCurrentLocation, loading: locationLoading, address: geoAddress } = useGeolocation();
 
@@ -164,7 +166,7 @@ export default function CartPage() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-6">
             {/* Restaurant Header */}
-            {restaurantData && (
+            {!isFoodCourt && restaurantData && (
               <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-6 shadow-sm">
                 <h2 className="text-2xl font-bold text-gray-900">
                   {restaurantData.name}
@@ -378,57 +380,103 @@ export default function CartPage() {
 
             {/* Cart Items List */}
             <div className="space-y-4">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-4 flex items-center justify-between hover:shadow-md transition-all"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{item.name}</h3>
-                    {item.customizations && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        {item.customizations}
-                      </p>
-                    )}
-                    <p className="text-sm font-medium text-primary mt-2">
-                      ₹{item.price}
-                    </p>
+              {isFoodCourt ? (
+                // Food court: group items by restaurant
+                restaurantGroups.map((group) => (
+                  <div key={group.restaurantId} className="space-y-3">
+                    <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-4 flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <span className="text-xl">🏪</span> {group.restaurantName}
+                      </h3>
+                      <Link
+                        to={`/restaurant/${group.restaurantSlug}?foodCourtId=${foodCourtId}`}
+                        className="text-sm text-primary font-bold hover:underline"
+                      >
+                        + Add More
+                      </Link>
+                    </div>
+                    {group.items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-4 flex items-center justify-between hover:shadow-md transition-all ml-4"
+                      >
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                          {item.customizations && (
+                            <p className="text-sm text-gray-600 mt-1">{item.customizations}</p>
+                          )}
+                          <p className="text-sm font-medium text-primary mt-2">₹{item.price}</p>
+                        </div>
+                        <div className="flex items-center space-x-3 ml-4">
+                          <div className="flex items-center border-2 border-dashed border-orange-200 rounded-[12px] bg-orange-50">
+                            <button onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))} className="p-2 hover:bg-orange-100 transition-colors">
+                              <FiMinus className="w-4 h-4 text-primary font-bold" />
+                            </button>
+                            <span className="px-3 py-1 font-bold text-gray-900">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="p-2 hover:bg-orange-100 transition-colors">
+                              <FiPlus className="w-4 h-4 text-primary font-bold" />
+                            </button>
+                          </div>
+                          <button onClick={() => removeItem(item.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors">
+                            <FiTrash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-
-                  <div className="flex items-center space-x-3 ml-4">
-                    {/* Quantity Controls */}
-                    <div className="flex items-center border-2 border-dashed border-orange-200 rounded-[12px] bg-orange-50">
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, Math.max(0, item.quantity - 1))
-                        }
-                        className="p-2 hover:bg-orange-100 transition-colors"
-                      >
-                        <FiMinus className="w-4 h-4 text-primary font-bold" />
-                      </button>
-                      <span className="px-3 py-1 font-bold text-gray-900">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                        className="p-2 hover:bg-orange-100 transition-colors"
-                      >
-                        <FiPlus className="w-4 h-4 text-primary font-bold" />
-                      </button>
+                ))
+              ) : (
+                // Regular: flat list
+                items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-4 flex items-center justify-between hover:shadow-md transition-all"
+                  >
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                      {item.customizations && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          {item.customizations}
+                        </p>
+                      )}
+                      <p className="text-sm font-medium text-primary mt-2">
+                        ₹{item.price}
+                      </p>
                     </div>
 
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                    >
-                      <FiTrash2 className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center space-x-3 ml-4">
+                      <div className="flex items-center border-2 border-dashed border-orange-200 rounded-[12px] bg-orange-50">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, Math.max(0, item.quantity - 1))
+                          }
+                          className="p-2 hover:bg-orange-100 transition-colors"
+                        >
+                          <FiMinus className="w-4 h-4 text-primary font-bold" />
+                        </button>
+                        <span className="px-3 py-1 font-bold text-gray-900">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          className="p-2 hover:bg-orange-100 transition-colors"
+                        >
+                          <FiPlus className="w-4 h-4 text-primary font-bold" />
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                      >
+                        <FiTrash2 className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* Clear Cart Button */}

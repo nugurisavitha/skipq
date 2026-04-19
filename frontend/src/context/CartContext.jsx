@@ -50,20 +50,47 @@ export default function CartProvider({ children }) {
     const restId = getId(restaurantInfo);
     const itemId = getId(item);
 
-    // Check if adding from different restaurant
+    // Food court orders allow multiple restaurants
+    if (fcId) {
+      setFoodCourtId(fcId);
+      if (!restaurantId) {
+        setRestaurantId(restId);
+        setRestaurantData({ ...restaurantInfo, id: restId });
+      }
+      setItems((prevItems) => {
+        const existingItem = prevItems.find((i) => i.id === itemId);
+        if (existingItem) {
+          return prevItems.map((i) =>
+            i.id === itemId
+              ? { ...i, quantity: i.quantity + (item.quantity || 1) }
+              : i,
+          );
+        }
+        return [...prevItems, {
+          ...item,
+          id: itemId,
+          quantity: item.quantity || 1,
+          restaurantId: restId,
+          restaurantName: restaurantInfo.name,
+          restaurantSlug: restaurantInfo.slug,
+        }];
+      });
+      return;
+    }
+
+    // Non-food-court: single restaurant restriction
     if (restaurantId && restaurantId !== restId) {
       throw new Error('You can only order from one restaurant at a time');
     }
 
     setRestaurantId(restId);
     setRestaurantData({ ...restaurantInfo, id: restId });
-    setFoodCourtId(fcId);
+    setFoodCourtId(null);
 
     setItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === itemId);
 
       if (existingItem) {
-        // If item exists, increase quantity
         return prevItems.map((i) =>
           i.id === itemId
             ? { ...i, quantity: i.quantity + (item.quantity || 1) }
@@ -71,7 +98,6 @@ export default function CartProvider({ children }) {
         );
       }
 
-      // Add new item with normalized id
       return [...prevItems, { ...item, id: itemId, quantity: item.quantity || 1 }];
     });
   };
@@ -103,6 +129,24 @@ export default function CartProvider({ children }) {
     setRestaurantData(null);
     setDineInInfo(null);
     setFoodCourtId(null);
+  };
+
+  // Group items by restaurant (for food court multi-restaurant orders)
+  const getItemsByRestaurant = () => {
+    const grouped = {};
+    items.forEach((item) => {
+      const rid = item.restaurantId || restaurantId;
+      if (!grouped[rid]) {
+        grouped[rid] = {
+          restaurantId: rid,
+          restaurantName: item.restaurantName || restaurantData?.name || 'Restaurant',
+          restaurantSlug: item.restaurantSlug || restaurantData?.slug,
+          items: [],
+        };
+      }
+      grouped[rid].items.push(item);
+    });
+    return Object.values(grouped);
   };
 
   const getSubtotal = () => {
@@ -137,6 +181,7 @@ export default function CartProvider({ children }) {
     removeItem,
     updateQuantity,
     clearCart,
+    getItemsByRestaurant,
     getSubtotal,
     getTax,
     getDeliveryFee,

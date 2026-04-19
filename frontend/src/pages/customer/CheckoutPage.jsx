@@ -27,8 +27,10 @@ export default function CheckoutPage() {
     clearCart,
     isEmpty,
     foodCourtId,
+    getItemsByRestaurant,
   } = useCart();
   const isFoodCourt = !!foodCourtId;
+  const restaurantGroups = isFoodCourt ? getItemsByRestaurant() : [];
 
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [couponCode, setCouponCode] = useState('');
@@ -144,45 +146,83 @@ export default function CheckoutPage() {
   const createOrder = async (paymentMethod, paymentId = null) => {
     setIsLoading(true);
     try {
-      const orderData = {
-        restaurantId: restaurantData._id || restaurantData.id,
-        items: items.map((item) => ({
-          menuItemId: item._id || item.id,
-          quantity: item.quantity,
-          customizations: item.customizations,
-        })),
-        orderType: isFoodCourt ? 'dine_in' : (state.orderType || 'delivery'),
-        deliveryAddress:
-          !isFoodCourt && state.orderType === 'delivery'
-            ? { address: state.deliveryAddress }
-            : null,
-        scheduledFor:
-          !isFoodCourt && state.orderType === 'dine_in' ? state.dineInTime : null,
-        tableNumber:
-          !isFoodCourt && state.orderType === 'dine_in' ? state.tableNumber : null,
-        specialInstructions: state.specialInstructions,
-        paymentMethod,
-        paymentId,
-        couponCode: appliedCoupon?.code,
-        totalAmount: total,
-        ...(isFoodCourt ? { foodCourtId } : {}),
-      };
+      if (isFoodCourt && restaurantGroups.length > 0) {
+        // Food court: create separate order per restaurant
+        const tokens = [];
+        let lastOrderId = null;
+        for (const group of restaurantGroups) {
+          const groupSubtotal = group.items.reduce((s, i) => s + i.price * i.quantity, 0);
+          const groupTax = Math.round(groupSubtotal * 0.05 * 100) / 100;
+          const orderData = {
+            restaurantId: group.restaurantId,
+            items: group.items.map((item) => ({
+              menuItemId: item._id || item.id,
+              quantity: item.quantity,
+              customizations: item.customizations,
+            })),
+            orderType: 'dine_in',
+            deliveryAddress: null,
+            specialInstructions: state.specialInstructions,
+            paymentMethod,
+            paymentId,
+            couponCode: appliedCoupon?.code,
+            totalAmount: groupSubtotal + groupTax,
+            foodCourtId,
+          };
 
-      const response = await api.orders.create(orderData);
-      const orderRes = response.data?.data?.order || response.data?.data;
-      const newOrderId = orderRes?._id || orderRes?.id;
+          const response = await api.orders.create(orderData);
+          const orderRes = response.data?.data?.order || response.data?.data;
+          lastOrderId = orderRes?._id || orderRes?.id;
+          const token = orderRes?.tokenNumber || orderRes?.token || orderRes?.orderNumber || '';
+          tokens.push({ name: group.restaurantName, token });
+        }
 
-      const tokenNumber = orderRes?.tokenNumber || orderRes?.token || orderRes?.orderNumber || '';
-      clearCart();
-
-      if (isFoodCourt && tokenNumber) {
-        toast.success(`Order placed! Your token: ${tokenNumber}. Pick up at the counter.`, { duration: 6000 });
-      } else if (isFoodCourt) {
-        toast.success('Order placed! Pick up at the restaurant counter with your token number.', { duration: 5000 });
+        clearCart();
+        const tokenMsg = tokens.map(t => `${t.name}: #${t.token || 'pending'}`).join('\n');
+        toast.success(`${tokens.length} order(s) placed!\n${tokenMsg}\nPick up at each counter.`, { duration: 8000 });
+        navigate(lastOrderId ? `/orders/${lastOrderId}` : '/orders');
       } else {
-        toast.success('Order placed successfully!');
+        // Single restaurant order
+        const orderData = {
+          restaurantId: restaurantData._id || restaurantData.id,
+          items: items.map((item) => ({
+            menuItemId: item._id || item.id,
+            quantity: item.quantity,
+            customizations: item.customizations,
+          })),
+          orderType: isFoodCourt ? 'dine_in' : (state.orderType || 'delivery'),
+          deliveryAddress:
+            !isFoodCourt && state.orderType === 'delivery'
+              ? { address: state.deliveryAddress }
+              : null,
+          scheduledFor:
+            !isFoodCourt && state.orderType === 'dine_in' ? state.dineInTime : null,
+          tableNumber:
+            !isFoodCourt && state.orderType === 'dine_in' ? state.tableNumber : null,
+          specialInstructions: state.specialInstructions,
+          paymentMethod,
+          paymentId,
+          couponCode: appliedCoupon?.code,
+          totalAmount: total,
+          ...(isFoodCourt ? { foodCourtId } : {}),
+        };
+
+        const response = await api.orders.create(orderData);
+        const orderRes = response.data?.data?.order || response.data?.data;
+        const newOrderId = orderRes?._id || orderRes?.id;
+
+        const tokenNumber = orderRes?.tokenNumber || orderRes?.token || orderRes?.orderNumber || '';
+        clearCart();
+
+        if (isFoodCourt && tokenNumber) {
+          toast.success(`Order placed! Your token: ${tokenNumber}. Pick up at the counter.`, { duration: 6000 });
+        } else if (isFoodCourt) {
+          toast.success('Order placed! Pick up at the restaurant counter with your token number.', { duration: 5000 });
+        } else {
+          toast.success('Order placed successfully!');
+        }
+        navigate(`/orders/${newOrderId}`);
       }
-      navigate(`/orders/${newOrderId}`);
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to place order';
       toast.error(message);
@@ -424,24 +464,43 @@ export default function CheckoutPage() {
 
               {/* Items */}
               <div className="space-y-3 mb-6 pb-6 border-b-2 border-dashed border-orange-200 max-h-64 overflow-y-auto">
-                {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between items-start text-sm"
-                  >
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        {item.name}
+                {isFoodCourt && restaurantGroups.length > 1 ? (
+                  restaurantGroups.map((group) => (
+                    <div key={group.restaurantId}>
+                      <p className="text-xs font-bold text-primary border-b border-primary pb-1 mb-2 mt-2">
+                        {group.restaurantName}
                       </p>
-                      <p className="text-xs text-gray-600">
-                        × {item.quantity}
+                      {group.items.map((item) => (
+                        <div key={item.id} className="flex justify-between items-start text-sm mb-1">
+                          <div>
+                            <p className="font-medium text-gray-900">{item.name}</p>
+                            <p className="text-xs text-gray-600">× {item.quantity}</p>
+                          </div>
+                          <p className="font-semibold text-gray-900">₹{(item.price * item.quantity).toFixed(2)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                ) : (
+                  items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-start text-sm"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          × {item.quantity}
+                        </p>
+                      </div>
+                      <p className="font-semibold text-gray-900">
+                        ₹{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
-                    <p className="font-semibold text-gray-900">
-                      ₹{(item.price * item.quantity).toFixed(2)}
-                    </p>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               {/* Price Breakdown */}
@@ -481,7 +540,15 @@ export default function CheckoutPage() {
               {/* Restaurant Info */}
               <div className="p-4 bg-orange-50 border-2 border-dashed border-orange-200 rounded-[12px] text-sm">
                 <p className="font-bold text-gray-900 mb-1">From</p>
-                <p className="text-gray-700 font-medium">{restaurantData.name}</p>
+                {isFoodCourt && restaurantGroups.length > 1 ? (
+                  restaurantGroups.map((group) => (
+                    <p key={group.restaurantId} className="text-gray-700 font-medium">
+                      {group.restaurantName}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-gray-700 font-medium">{restaurantData.name}</p>
+                )}
               </div>
             </div>
           </div>
