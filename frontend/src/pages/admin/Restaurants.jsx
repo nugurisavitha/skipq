@@ -241,7 +241,7 @@ export default function AdminRestaurants() {
           if (clonedCount > 0) {
             toast.success(`Cloned ${clonedCount} menu items!`);
           } else {
-            toast('Source restaurant has no menu items to clone', { icon: 'â¹ï¸' });
+            toast('Source restaurant has no menu items to clone', { icon: 'ℹ️' });
           }
         } catch (cloneErr) {
           console.error('Menu clone failed:', cloneErr);
@@ -420,7 +420,7 @@ export default function AdminRestaurants() {
     currentPage * itemsPerPage
   );
 
-  // For clone list â use already-loaded restaurants from the page
+  // For clone list — use already-loaded restaurants from the page
   const cloneFilteredRestaurants = restaurants.filter((r) =>
     r.name?.toLowerCase().includes(cloneSearch.toLowerCase())
   );
@@ -532,7 +532,7 @@ export default function AdminRestaurants() {
                       <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs text-gray-600 font-medium">Revenue</p>
-                          <p className="text-sm font-bold text-[#F2A93E] mt-1">â¹{(restaurant.revenue || 0).toLocaleString()}</p>
+                          <p className="text-sm font-bold text-[#F2A93E] mt-1">₹{(restaurant.revenue || 0).toLocaleString()}</p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-600 font-medium">Phone</p>
@@ -736,7 +736,7 @@ export default function AdminRestaurants() {
                 <div className="bg-red-50 border border-red-200 rounded-[10px] p-4">
                   <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2"><FiAlertCircle className="w-4 h-4" /> Issues Found</h4>
                   <ul className="text-sm text-red-600 space-y-1 max-h-32 overflow-y-auto">
-                    {importErrors.map((err, i) => <li key={i}>â¢ {err}</li>)}
+                    {importErrors.map((err, i) => <li key={i}>• {err}</li>)}
                   </ul>
                 </div>
               )}
@@ -768,7 +768,7 @@ export default function AdminRestaurants() {
                             <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-green-50/30'}>
                               <td className="p-2 text-gray-500">{idx + 1}</td>
                               <td className="p-2 font-medium text-gray-900">{item.name}</td>
-                              <td className="p-2 text-gray-700">â¹{item.price}</td>
+                              <td className="p-2 text-gray-700">₹{item.price}</td>
                               <td className="p-2 text-gray-600">{item.category || 'Other'}</td>
                               <td className="p-2">
                                 <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${isVeg ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
@@ -954,7 +954,7 @@ export default function AdminRestaurants() {
 
                 {/* Min Order */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Minimum Order (â¹)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Minimum Order (₹)</label>
                   <input
                     type="number"
                     name="minimumOrder"
@@ -967,7 +967,7 @@ export default function AdminRestaurants() {
 
                 {/* Delivery Fee */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Delivery Fee (â¹)</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Delivery Fee (₹)</label>
                   <input
                     type="number"
                     name="deliveryFee"
@@ -1019,7 +1019,7 @@ export default function AdminRestaurants() {
                 {showCloneSection && (
                   <div className="mt-3 bg-white rounded-lg border-2 border-purple-200 p-4">
                     <p className="text-xs text-purple-600 mb-3">
-                      For chain restaurants like McDonald's, KFC â copy the entire menu from an existing branch.
+                      For chain restaurants like McDonald's, KFC — copy the entire menu from an existing branch.
                     </p>
 
                     {/* Search */}
@@ -1046,7 +1046,7 @@ export default function AdminRestaurants() {
                             : 'bg-white text-gray-600 hover:bg-purple-100 border border-purple-100'
                         }`}
                       >
-                        No clone â start with empty menu
+                        No clone — start with empty menu
                       </button>
 
                       {cloneFilteredRestaurants.map((r) => {

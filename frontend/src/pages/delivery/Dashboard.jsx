@@ -7,7 +7,7 @@ import {
 import toast from 'react-hot-toast';
 import { deliveryAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
-import { useSocket } from '../../hooks/useSocket';
+import { useSocket } from '../../context/SocketContext';
 
 /**
  * Mobile-first Delivery Agent Dashboard.
@@ -34,7 +34,7 @@ export default function DeliveryDashboard() {
 
   const locationWatchRef = useRef(null);
 
-  // âââââââââââââââ Data fetchers âââââââââââââââ
+  // ─────────────── Data fetchers ───────────────
   const fetchAll = useCallback(async () => {
     try {
       const [meRes, offersRes, tripRes] = await Promise.all([
@@ -56,10 +56,10 @@ export default function DeliveryDashboard() {
         const eRes = await deliveryAPI.getEarnings({});
         const e = eRes.data?.data || eRes.data || {};
         setEarnings({
-          today: (typeof e.today === 'object' ? e.today?.total : e.today) ?? 0,
-          week: (typeof e.week === 'object' ? e.week?.total : e.week) ?? 0,
-          lifetime: (typeof e.lifetime === 'object' ? e.lifetime?.total : e.lifetime) ?? me?.earningsTotal ?? 0,
-          deliveriesLifetime: (typeof e.lifetime === 'object' ? e.lifetime?.count : e.deliveriesLifetime) ?? me?.deliveriesCompleted ?? 0,
+          today: e.today ?? 0,
+          week: e.week ?? 0,
+          lifetime: e.lifetime ?? me?.earningsTotal ?? 0,
+          deliveriesLifetime: e.deliveriesLifetime ?? me?.deliveriesCompleted ?? 0,
         });
       } catch (_) { /* ignore */ }
     } catch (err) {
@@ -74,7 +74,7 @@ export default function DeliveryDashboard() {
     fetchAll();
   }, [fetchAll]);
 
-  // âââââââââââââââ Socket listeners âââââââââââââââ
+  // ─────────────── Socket listeners ───────────────
   useEffect(() => {
     if (!socket) return;
     const onNewOffer = (offer) => {
@@ -95,7 +95,7 @@ export default function DeliveryDashboard() {
     };
   }, [socket]);
 
-  // âââââââââââââââ Location helpers âââââââââââââââ
+  // ─────────────── Location helpers ───────────────
   const getLocation = () =>
     new Promise((resolve, reject) => {
       if (!navigator.geolocation) return reject(new Error('Geolocation not supported'));
@@ -126,7 +126,7 @@ export default function DeliveryDashboard() {
   };
   useEffect(() => () => stopLocationWatch(), []);
 
-  // âââââââââââââââ Actions âââââââââââââââ
+  // ─────────────── Actions ───────────────
   const toggleOnline = async () => {
     if (onlineBusy) return;
     const goingOnline = !profile?.isOnline;
@@ -214,7 +214,7 @@ export default function DeliveryDashboard() {
     setActionBusy(true);
     try {
       await deliveryAPI.markDelivered(activeTrip._id);
-      toast.success('Delivery complete! ð');
+      toast.success('Delivery complete! 🎉');
       await fetchAll();
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to update');
@@ -229,13 +229,13 @@ export default function DeliveryDashboard() {
     window.open(url, '_blank');
   };
 
-  // âââââââââââââââ Render âââââââââââââââ
+  // ─────────────── Render ───────────────
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <FiLoader className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-gray-600">Loadingâ¦</p>
+          <p className="text-gray-600">Loading…</p>
         </div>
       </div>
     );
@@ -307,7 +307,7 @@ export default function DeliveryDashboard() {
           ].map((s) => (
             <div key={s.label} className="bg-white rounded-xl shadow-sm p-3 text-center">
               <p className="text-[11px] text-gray-500">{s.label}</p>
-              <p className="text-base font-bold text-gray-900">â¹{Number(s.value || 0).toLocaleString()}</p>
+              <p className="text-base font-bold text-gray-900">₹{Number(s.value || 0).toLocaleString()}</p>
             </div>
           ))}
         </div>
@@ -334,7 +334,7 @@ export default function DeliveryDashboard() {
               </div>
               <div className="flex items-center justify-between text-xs pt-2 border-t">
                 <span className="text-gray-500">Your payout</span>
-                <span className="font-bold text-emerald-600">â¹{Number(activeTrip.deliveryAgentPayout || 0).toFixed(2)}</span>
+                <span className="font-bold text-emerald-600">₹{Number(activeTrip.deliveryAgentPayout || 0).toFixed(2)}</span>
               </div>
             </div>
 
@@ -376,7 +376,7 @@ export default function DeliveryDashboard() {
             {offers.length === 0 ? (
               <div className="py-8 text-center text-gray-500">
                 <FiAlertCircle className="w-10 h-10 mx-auto mb-2 text-gray-300" />
-                <p className="text-sm">{isOnline ? 'No offers yet. Stay online â we\'ll notify you.' : 'Go online to start receiving offers.'}</p>
+                <p className="text-sm">{isOnline ? 'No offers yet. Stay online — we\'ll notify you.' : 'Go online to start receiving offers.'}</p>
               </div>
             ) : (
               <ul className="divide-y">
@@ -390,11 +390,11 @@ export default function DeliveryDashboard() {
                           <p className="font-semibold text-gray-900 text-sm">{order.restaurant?.name || 'Restaurant'}</p>
                           <p className="text-xs text-gray-600 mt-0.5">
                             <FiMapPin className="inline w-3 h-3 mr-1" />
-                            {Number(o.distanceKm || 0).toFixed(1)} km to pickup Â· trip {Number(o.tripDistanceKm || 0).toFixed(1)} km
+                            {Number(o.distanceKm || 0).toFixed(1)} km to pickup · trip {Number(o.tripDistanceKm || 0).toFixed(1)} km
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-emerald-600 font-bold">â¹{Number(o.quotedPrice || 0).toFixed(2)}</p>
+                          <p className="text-emerald-600 font-bold">₹{Number(o.quotedPrice || 0).toFixed(2)}</p>
                           <p className="text-[10px] text-gray-500">your payout</p>
                         </div>
                       </div>
@@ -440,17 +440,17 @@ export default function DeliveryDashboard() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="bg-orange-50 rounded-lg p-3">
                 <p className="text-gray-500 text-xs">Base fare</p>
-                <p className="font-bold text-gray-900">â¹{Number(profile?.rateCard?.baseFare ?? 30).toFixed(2)}</p>
+                <p className="font-bold text-gray-900">₹{Number(profile?.rateCard?.baseFare ?? 30).toFixed(2)}</p>
               </div>
               <div className="bg-orange-50 rounded-lg p-3">
                 <p className="text-gray-500 text-xs">Per km</p>
-                <p className="font-bold text-gray-900">â¹{Number(profile?.rateCard?.perKmRate ?? 8).toFixed(2)}</p>
+                <p className="font-bold text-gray-900">₹{Number(profile?.rateCard?.perKmRate ?? 8).toFixed(2)}</p>
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3 text-sm">
               <label className="block">
-                <span className="text-gray-500 text-xs">Base fare (â¹)</span>
+                <span className="text-gray-500 text-xs">Base fare (₹)</span>
                 <input
                   type="number"
                   min="0"
@@ -461,7 +461,7 @@ export default function DeliveryDashboard() {
                 />
               </label>
               <label className="block">
-                <span className="text-gray-500 text-xs">Per km (â¹)</span>
+                <span className="text-gray-500 text-xs">Per km (₹)</span>
                 <input
                   type="number"
                   min="0"
@@ -472,7 +472,7 @@ export default function DeliveryDashboard() {
                 />
               </label>
               <p className="col-span-2 text-[11px] text-gray-500">
-                Payout = base + per km Ã trip distance. Offers show your computed payout before accepting.
+                Payout = base + per km × trip distance. Offers show your computed payout before accepting.
               </p>
             </div>
           )}

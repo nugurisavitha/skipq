@@ -98,7 +98,7 @@ export default function AdminOrders() {
         return;
       }
 
-      const headers = ['Order #', 'Customer', 'Restaurant', 'Items', 'Total (\u20b9)', 'Status', 'Type', 'Payment Status', 'Date'];
+      const headers = ['Order #', 'Customer', 'Restaurant', 'Items', 'Total (₹)', 'Status', 'Type', 'Payment Status', 'Date'];
       const rows = dataToExport.map((order) => [
         order.orderNumber || '',
         order.customer?.name || 'N/A',
@@ -285,7 +285,7 @@ export default function AdminOrders() {
                           <td className="py-3 px-4 text-gray-600 text-sm">{order.customer?.name || 'N/A'}</td>
                           <td className="py-3 px-4 text-gray-600 text-sm">{order.restaurant?.name || 'N/A'}</td>
                           <td className="py-3 px-4 text-gray-900 text-sm font-semibold">{order.items?.length || 0}</td>
-                          <td className="py-3 px-4 text-gray-900 font-semibold">â¹{order.total?.toLocaleString('en-IN')}</td>
+                          <td className="py-3 px-4 text-gray-900 font-semibold">₹{order.total?.toLocaleString('en-IN')}</td>
                           <td className="py-3 px-4">
                             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadgeColor(order.status)}`}>
                               {order.status?.replace('_', ' ')}

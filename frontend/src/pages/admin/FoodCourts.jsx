@@ -526,7 +526,7 @@ export default function FoodCourts() {
           if (clonedCount > 0) {
             toast.success(`Cloned ${clonedCount} menu items!`);
           } else {
-            toast('Source restaurant has no menu items to clone', { icon: 'â¹ï¸' });
+            toast('Source restaurant has no menu items to clone', { icon: 'ℹ️' });
           }
         } catch (cloneErr) {
           console.error('Menu clone failed:', cloneErr);
@@ -926,7 +926,7 @@ export default function FoodCourts() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Minimum Order (â¹)
+                        Minimum Order (₹)
                       </label>
                       <input
                         type="number"
@@ -940,7 +940,7 @@ export default function FoodCourts() {
 
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Delivery Fee (â¹)
+                        Delivery Fee (₹)
                       </label>
                       <input
                         type="number"
@@ -982,7 +982,7 @@ export default function FoodCourts() {
                       Clone Menu From Existing Restaurant (Optional)
                     </label>
                     <p className="text-xs text-purple-600 mb-3">
-                      For chain restaurants like McDonald's, KFC etc. â copy the entire menu from an existing branch.
+                      For chain restaurants like McDonald's, KFC etc. — copy the entire menu from an existing branch.
                     </p>
 
                     {/* Search filter for restaurants */}
@@ -1009,7 +1009,7 @@ export default function FoodCourts() {
                             : 'bg-white text-gray-600 hover:bg-purple-100 border border-purple-100'
                         }`}
                       >
-                        No clone â start with empty menu
+                        No clone — start with empty menu
                       </button>
 
                       {restaurants
@@ -1395,7 +1395,7 @@ export default function FoodCourts() {
                 <div className="bg-red-50 border border-red-200 rounded-[10px] p-4">
                   <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2"><FiAlertCircle className="w-4 h-4" /> Issues</h4>
                   <ul className="text-sm text-red-600 space-y-1 max-h-32 overflow-y-auto">
-                    {importErrors.map((err, i) => <li key={i}>â¢ {err}</li>)}
+                    {importErrors.map((err, i) => <li key={i}>• {err}</li>)}
                   </ul>
                 </div>
               )}
@@ -1425,7 +1425,7 @@ export default function FoodCourts() {
                             <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-green-50/30'}>
                               <td className="p-2 text-gray-500">{idx + 1}</td>
                               <td className="p-2 font-medium text-gray-900">{item.name}</td>
-                              <td className="p-2 text-gray-700">â¹{item.price}</td>
+                              <td className="p-2 text-gray-700">₹{item.price}</td>
                               <td className="p-2 text-gray-600">{item.category || 'Other'}</td>
                               <td className="p-2">
                                 <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${isVeg ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>

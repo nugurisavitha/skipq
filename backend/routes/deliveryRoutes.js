@@ -48,6 +48,4 @@ router.patch('/availability', authorize('delivery_admin'), deliveryController.to
 router.patch('/location', authorize('delivery_admin'), deliveryController.updateLocation);
 router.get('/stats', authorize('delivery_admin'), deliveryController.getDeliveryStats);
 
-
-
 module.exports = router;

@@ -179,14 +179,6 @@ const restaurantSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    salesRep: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      index: true,
-    },
-    activatedAt: {
-      type: Date,
-    },
   },
   { timestamps: true }
 );

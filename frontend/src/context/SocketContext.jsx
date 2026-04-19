@@ -12,15 +12,15 @@ export default function SocketProvider({ children }) {
 
   useEffect(() => {
     // Initialize socket connection
-    const socketInstance = io(
-      import.meta.env.VITE_SOCKET_URL || window.location.origin,
-      {
-        reconnection: true,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        reconnectionAttempts: 5,
-      },
-    );
+    // Use VITE_SOCKET_URL if set, otherwise connect to same origin
+    // (nginx proxies /socket.io to the backend in production)
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+    const socketInstance = io(socketUrl, {
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
+    });
 
     socketInstance.on('connect', () => {
       console.log('Socket connected:', socketInstance.id);

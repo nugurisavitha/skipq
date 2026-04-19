@@ -26,7 +26,9 @@ export default function CheckoutPage() {
     getDeliveryFee,
     clearCart,
     isEmpty,
+    foodCourtId,
   } = useCart();
+  const isFoodCourt = !!foodCourtId;
 
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [couponCode, setCouponCode] = useState('');
@@ -55,7 +57,7 @@ export default function CheckoutPage() {
 
   const subtotal = getSubtotal();
   const tax = getTax();
-  const deliveryFee = state.orderType === 'delivery' ? getDeliveryFee() : 0;
+  const deliveryFee = (!isFoodCourt && state.orderType === 'delivery') ? getDeliveryFee() : 0;
   // Convenience fee: Rs 10 + 18% GST = Rs 11.80
   const convenienceFee = 11.80;
   const discountAmount = appliedCoupon ? appliedCoupon.discount : 0;
@@ -149,28 +151,37 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           customizations: item.customizations,
         })),
-        orderType: state.orderType || 'delivery',
+        orderType: isFoodCourt ? 'dine_in' : (state.orderType || 'delivery'),
         deliveryAddress:
-          state.orderType === 'delivery'
+          !isFoodCourt && state.orderType === 'delivery'
             ? { address: state.deliveryAddress }
             : null,
         scheduledFor:
-          state.orderType === 'dine_in' ? state.dineInTime : null,
+          !isFoodCourt && state.orderType === 'dine_in' ? state.dineInTime : null,
         tableNumber:
-          state.orderType === 'dine_in' ? state.tableNumber : null,
+          !isFoodCourt && state.orderType === 'dine_in' ? state.tableNumber : null,
         specialInstructions: state.specialInstructions,
         paymentMethod,
         paymentId,
         couponCode: appliedCoupon?.code,
         totalAmount: total,
+        ...(isFoodCourt ? { foodCourtId } : {}),
       };
 
       const response = await api.orders.create(orderData);
       const orderRes = response.data?.data?.order || response.data?.data;
       const newOrderId = orderRes?._id || orderRes?.id;
 
+      const tokenNumber = orderRes?.tokenNumber || orderRes?.token || orderRes?.orderNumber || '';
       clearCart();
-      toast.success('Order placed successfully!');
+
+      if (isFoodCourt && tokenNumber) {
+        toast.success(`Order placed! Your token: ${tokenNumber}. Pick up at the counter.`, { duration: 6000 });
+      } else if (isFoodCourt) {
+        toast.success('Order placed! Pick up at the restaurant counter with your token number.', { duration: 5000 });
+      } else {
+        toast.success('Order placed successfully!');
+      }
       navigate(`/orders/${newOrderId}`);
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to place order';
@@ -217,54 +228,74 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Payment & Delivery */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Delivery Address */}
-            {state.orderType === 'delivery' && (
+            {/* Food Court Pickup Banner */}
+            {isFoodCourt ? (
               <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
-                  <FiMapPin className="w-5 h-5 text-primary mr-2" />
-                  Delivery Address
-                </h2>
-                <p className="text-gray-700 whitespace-pre-line bg-orange-50 p-4 rounded-[12px] border border-orange-100 mb-4">
-                  {state.deliveryAddress}
-                </p>
-                <button
-                  onClick={() => navigate('/cart')}
-                  className="text-sm text-primary hover:underline font-bold"
-                >
-                  Change Address
-                </button>
-              </div>
-            )}
-
-            {/* Dine-in Details */}
-            {state.orderType === 'dine_in' && (
-              <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">
-                  Dine-in Details
-                </h2>
-                <div className={`grid ${state.tableNumber ? 'grid-cols-2' : 'grid-cols-1'} gap-4 mb-4`}>
-                  <div className="bg-orange-50 p-4 rounded-[12px] border border-orange-100">
-                    <p className="text-sm text-gray-600 font-medium">Date & Time</p>
-                    <p className="font-semibold text-gray-900 text-primary">
-                      {state.dineInTime}
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Food Court Pickup</h2>
+                <div className="flex items-start gap-4 bg-gradient-to-r from-orange-50 to-orange-100 border-2 border-dashed border-orange-300 rounded-[12px] p-5">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <span className="text-2xl font-bold text-primary">#</span>
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-lg">Counter Pickup with Token</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      After placing your order, you'll receive a token number. Collect your food at the restaurant counter when it's ready.
                     </p>
                   </div>
-                  {state.tableNumber && (
-                    <div className="bg-orange-50 p-4 rounded-[12px] border border-orange-100">
-                      <p className="text-sm text-gray-600 font-medium">Table Number</p>
-                      <p className="font-semibold text-gray-900 text-primary">
-                        {state.tableNumber}
-                      </p>
-                    </div>
-                  )}
                 </div>
-                <button
-                  onClick={() => navigate('/cart')}
-                  className="text-sm text-primary hover:underline font-bold"
-                >
-                  Change Details
-                </button>
               </div>
+            ) : (
+              <>
+                {/* Delivery Address */}
+                {state.orderType === 'delivery' && (
+                  <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                      <FiMapPin className="w-5 h-5 text-primary mr-2" />
+                      Delivery Address
+                    </h2>
+                    <p className="text-gray-700 whitespace-pre-line bg-orange-50 p-4 rounded-[12px] border border-orange-100 mb-4">
+                      {state.deliveryAddress}
+                    </p>
+                    <button
+                      onClick={() => navigate('/cart')}
+                      className="text-sm text-primary hover:underline font-bold"
+                    >
+                      Change Address
+                    </button>
+                  </div>
+                )}
+
+                {/* Dine-in Details */}
+                {state.orderType === 'dine_in' && (
+                  <div className="bg-white border-2 border-dashed border-orange-200 rounded-[15px] p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-4">
+                      Dine-in Details
+                    </h2>
+                    <div className={`grid ${state.tableNumber ? 'grid-cols-2' : 'grid-cols-1'} gap-4 mb-4`}>
+                      <div className="bg-orange-50 p-4 rounded-[12px] border border-orange-100">
+                        <p className="text-sm text-gray-600 font-medium">Date & Time</p>
+                        <p className="font-semibold text-gray-900 text-primary">
+                          {state.dineInTime}
+                        </p>
+                      </div>
+                      {state.tableNumber && (
+                        <div className="bg-orange-50 p-4 rounded-[12px] border border-orange-100">
+                          <p className="text-sm text-gray-600 font-medium">Table Number</p>
+                          <p className="font-semibold text-gray-900 text-primary">
+                            {state.tableNumber}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => navigate('/cart')}
+                      className="text-sm text-primary hover:underline font-bold"
+                    >
+                      Change Details
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
             {/* Coupon Code */}
@@ -330,10 +361,10 @@ export default function CheckoutPage() {
                   />
                   <div>
                     <p className="font-bold text-gray-900">
-                      Cash on Delivery
+                      {isFoodCourt ? 'Cash at Counter' : 'Cash on Delivery'}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Pay when your order arrives
+                      {isFoodCourt ? 'Pay with cash when you pick up' : 'Pay when your order arrives'}
                     </p>
                   </div>
                 </label>
@@ -423,7 +454,7 @@ export default function CheckoutPage() {
                   <span>Taxes & Charges</span>
                   <span className="font-medium">₹{tax.toFixed(2)}</span>
                 </div>
-                {state.orderType === 'delivery' && (
+                {!isFoodCourt && state.orderType === 'delivery' && (
                   <div className="flex justify-between text-gray-600">
                     <span>Delivery Fee</span>
                     <span className="font-medium">₹{deliveryFee.toFixed(2)}</span>

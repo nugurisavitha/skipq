@@ -21,7 +21,6 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const qrRoutes = require('./routes/qrRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const deliveryRoutes = require('./routes/deliveryRoutes');
-const salesRoutes = require('./routes/salesRoutes');
 const foodCourtRoutes = require('./routes/foodCourtRoutes');
 
 // Initialize Express app
@@ -61,7 +60,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Apple Universal Links â apple-app-site-association
+// Apple Universal Links — apple-app-site-association
 // When you publish to App Store, update the appID with your Team ID and Bundle ID
 app.get('/.well-known/apple-app-site-association', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
@@ -78,7 +77,7 @@ app.get('/.well-known/apple-app-site-association', (req, res) => {
   });
 });
 
-// Android App Links â assetlinks.json
+// Android App Links — assetlinks.json
 // When you publish to Play Store, update the package name and sha256 fingerprint
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json');
@@ -105,7 +104,6 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/qr', qrRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/delivery', deliveryRoutes);
-app.use('/api/sales', salesRoutes);
 app.use('/api/food-courts', foodCourtRoutes);
 
 // 404 handler

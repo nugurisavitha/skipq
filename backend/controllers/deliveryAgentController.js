@@ -7,7 +7,7 @@ const { calculateDistance, validateEmail, validatePhone } = require('../utils/he
 // Radius (km) within which to broadcast offers
 const BROADCAST_RADIUS_KM = parseFloat(process.env.DELIVERY_BROADCAST_RADIUS_KM || 5);
 // Offer validity window in seconds
-const OFFER_TTL_SECONDS = parseInt(process.env.DELIVERY_OFFER_TTL_SECONDS || 600);
+const OFFER_TTL_SECONDS = parseInt(process.env.DELIVERY_OFFER_TTL_SECONDS || 60);
 
 /**
  * Compute expected payout from agent's rate card and trip distance
@@ -70,10 +70,7 @@ const signup = asyncHandler(async (req, res) => {
  * GET /api/delivery/agents/pending
  */
 const listPendingAgents = asyncHandler(async (req, res) => {
-  const status = req.query.status || 'pending';
-  const filter = { role: 'delivery_admin' };
-  if (status !== 'all') filter.approvalStatus = status;
-  const agents = await User.find(filter)
+  const agents = await User.find({ role: 'delivery_admin', approvalStatus: 'pending' })
     .select('-password')
     .sort({ createdAt: -1 });
   res.status(200).json({ success: true, data: { agents } });
@@ -388,19 +385,15 @@ const broadcastOrderToAgents = async (order, io) => {
   try {
     const Restaurant = require('../models/Restaurant');
     const restaurant = await Restaurant.findById(order.restaurant).select('location address');
-    if (!restaurant) {
-      console.warn('broadcastOrderToAgents: restaurant not found');
+    if (!restaurant || !restaurant.location?.coordinates) {
+      console.warn('broadcastOrderToAgents: restaurant has no location');
       return 0;
     }
-    const hasRestaurantGeo = !!(restaurant.location && restaurant.location.coordinates);
-    if (!hasRestaurantGeo) {
-      console.warn('broadcastOrderToAgents: restaurant has no geo, using fallback to all online agents');
-    }
 
-    const [rLng, rLat] = hasRestaurantGeo ? restaurant.location.coordinates : [0, 0];
+    const [rLng, rLat] = restaurant.location.coordinates;
 
     // Find online, approved delivery agents within radius (2dsphere query)
-    let nearbyAgents = hasRestaurantGeo ? await User.find({
+    const nearbyAgents = await User.find({
       role: 'delivery_admin',
       approvalStatus: 'approved',
       isOnline: true,
@@ -411,21 +404,13 @@ const broadcastOrderToAgents = async (order, io) => {
           $maxDistance: BROADCAST_RADIUS_KM * 1000,
         },
       },
-    }).select('_id currentLocation rateCard').limit(50) : [];
+    })
+      .select('_id currentLocation rateCard')
+      .limit(50);
 
-if (nearbyAgents.length === 0) {
-      // Fallback: try all approved online agents regardless of distance
-      nearbyAgents = await User.find({
-        role: 'delivery_admin',
-        approvalStatus: 'approved',
-        isOnline: true,
-        isActive: true,
-      }).select('_id currentLocation rateCard').limit(50);
-      if (nearbyAgents.length === 0) {
-        console.warn('broadcastOrderToAgents: no online approved agents at all');
-        return 0;
-      }
-      console.log(`broadcastOrderToAgents: geo had 0, fallback found ${nearbyAgents.length}`);
+    if (nearbyAgents.length === 0) {
+      console.log(`No online agents near restaurant ${restaurant._id}`);
+      return 0;
     }
 
     // Compute trip distance (restaurant -> drop) for price quotes
@@ -439,8 +424,7 @@ if (nearbyAgents.length === 0) {
 
     // Create offer records (one per agent)
     const offerDocs = nearbyAgents.map((a) => {
-      const coords = a.currentLocation && a.currentLocation.coordinates ? a.currentLocation.coordinates : [rLng, rLat];
-      const [aLng, aLat] = coords;
+      const [aLng, aLat] = a.currentLocation.coordinates;
       const distanceKm = calculateDistance(aLat, aLng, rLat, rLng);
       const quotedPrice = computePayout(a.rateCard, tripDistanceKm);
       return {

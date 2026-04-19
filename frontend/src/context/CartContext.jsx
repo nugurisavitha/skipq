@@ -15,6 +15,9 @@ export default function CartProvider({ children }) {
   // { orderType: 'dine_in', tableNumber: '5' } or null
   const [dineInInfo, setDineInInfo] = useState(null);
 
+  // Food court ID — when set, order is dine_in pickup with token
+  const [foodCourtId, setFoodCourtId] = useState(null);
+
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem(STORAGE_KEY);
@@ -25,6 +28,7 @@ export default function CartProvider({ children }) {
         setRestaurantId(cartData.restaurantId || null);
         setRestaurantData(cartData.restaurantData || null);
         setDineInInfo(cartData.dineInInfo || null);
+        setFoodCourtId(cartData.foodCourtId || null);
       } catch (err) {
         console.error('Failed to load cart:', err);
       }
@@ -35,14 +39,14 @@ export default function CartProvider({ children }) {
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ items, restaurantId, restaurantData, dineInInfo }),
+      JSON.stringify({ items, restaurantId, restaurantData, dineInInfo, foodCourtId }),
     );
-  }, [items, restaurantId, restaurantData, dineInInfo]);
+  }, [items, restaurantId, restaurantData, dineInInfo, foodCourtId]);
 
   // Normalize MongoDB _id to id for consistent usage
   const getId = (obj) => obj._id || obj.id;
 
-  const addItem = (item, restaurantInfo) => {
+  const addItem = (item, restaurantInfo, fcId = null) => {
     const restId = getId(restaurantInfo);
     const itemId = getId(item);
 
@@ -53,6 +57,7 @@ export default function CartProvider({ children }) {
 
     setRestaurantId(restId);
     setRestaurantData({ ...restaurantInfo, id: restId });
+    setFoodCourtId(fcId);
 
     setItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === itemId);
@@ -97,6 +102,7 @@ export default function CartProvider({ children }) {
     setRestaurantId(null);
     setRestaurantData(null);
     setDineInInfo(null);
+    setFoodCourtId(null);
   };
 
   const getSubtotal = () => {
@@ -108,7 +114,7 @@ export default function CartProvider({ children }) {
   };
 
   const getDeliveryFee = () => {
-    return items.length > 0 ? DELIVERY_FEE : 0;
+    return items.length > 0 && !foodCourtId ? DELIVERY_FEE : 0;
   };
 
   const getTotal = () => {
@@ -125,6 +131,8 @@ export default function CartProvider({ children }) {
     restaurantData,
     dineInInfo,
     setDineInInfo,
+    foodCourtId,
+    setFoodCourtId,
     addItem,
     removeItem,
     updateQuantity,
