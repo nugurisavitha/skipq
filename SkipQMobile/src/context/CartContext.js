@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const CartContext = createContext(null);
@@ -13,6 +13,12 @@ export const CartProvider = ({ children }) => {
   const [restaurantData, setRestaurantData] = useState(null);
   const [dineInInfo, setDineInInfo] = useState(null);
   const [foodCourtId, setFoodCourtId] = useState(null);
+
+  // Refs to always have current values (avoids stale closure issues)
+  const foodCourtIdRef = useRef(foodCourtId);
+  const restaurantIdRef = useRef(restaurantId);
+  useEffect(() => { foodCourtIdRef.current = foodCourtId; }, [foodCourtId]);
+  useEffect(() => { restaurantIdRef.current = restaurantId; }, [restaurantId]);
 
   // Restore cart
   useEffect(() => {
@@ -38,57 +44,29 @@ export const CartProvider = ({ children }) => {
     );
   }, [items, restaurantId, restaurantData, dineInInfo, foodCourtId]);
 
-  const addItem = useCallback(
-    (item, restaurant, fcId = null) => {
-      const restId = String(restaurant._id || restaurant.id);
-      const itemId = String(item._id || item.id);
+  const addItem = (item, restaurant, fcId = null) => {
+    const restId = String(restaurant._id || restaurant.id);
+    const itemId = String(item._id || item.id);
 
-      // Determine if this is a food court order:
-      // either explicitly passed fcId, or cart already has foodCourtId
-      const isFoodCourtOrder = !!(fcId || foodCourtId);
+    // Use refs to get the absolute latest values (avoids stale closure)
+    const currentFoodCourtId = foodCourtIdRef.current;
+    const currentRestaurantId = restaurantIdRef.current;
 
-      // Food court orders allow multiple restaurants
-      if (isFoodCourtOrder) {
-        const activeFcId = fcId || foodCourtId;
-        setFoodCourtId(activeFcId);
-        // Set restaurantId/Data to first restaurant added (for backward compat)
-        if (!restaurantId) {
-          setRestaurantId(restId);
-          setRestaurantData(restaurant);
-        }
-        setItems((prev) => {
-          const idx = prev.findIndex((i) => String(i._id || i.id) === itemId);
-          if (idx >= 0) {
-            const updated = [...prev];
-            updated[idx] = { ...updated[idx], quantity: updated[idx].quantity + 1 };
-            return updated;
-          }
-          return [...prev, {
-            ...item,
-            _id: itemId,
-            quantity: 1,
-            restaurantId: restId,
-            restaurantName: restaurant.name || '',
-            restaurantSlug: restaurant.slug || '',
-          }];
-        });
-        return 'added';
-      }
+    // Determine if this is a food court order:
+    // either explicitly passed fcId, or cart already has foodCourtId
+    const isFoodCourtOrder = !!(fcId || currentFoodCourtId);
 
-      // Non-food-court: single restaurant restriction
-      if (restaurantId && restaurantId !== restId) {
-        // Different restaurant — clear first
-        setItems([{ ...item, _id: itemId, quantity: 1 }]);
+    // Food court orders allow multiple restaurants
+    if (isFoodCourtOrder) {
+      const activeFcId = fcId || currentFoodCourtId;
+      setFoodCourtId(activeFcId);
+      foodCourtIdRef.current = activeFcId;
+      // Set restaurantId/Data to first restaurant added (for backward compat)
+      if (!currentRestaurantId) {
         setRestaurantId(restId);
-        setRestaurantData(restaurant);
-        setFoodCourtId(null);
-        return 'switched';
-      }
-      if (!restaurantId) {
-        setRestaurantId(restId);
+        restaurantIdRef.current = restId;
         setRestaurantData(restaurant);
       }
-      setFoodCourtId(null);
       setItems((prev) => {
         const idx = prev.findIndex((i) => String(i._id || i.id) === itemId);
         if (idx >= 0) {
@@ -96,18 +74,53 @@ export const CartProvider = ({ children }) => {
           updated[idx] = { ...updated[idx], quantity: updated[idx].quantity + 1 };
           return updated;
         }
-        return [...prev, { ...item, _id: itemId, quantity: 1 }];
+        return [...prev, {
+          ...item,
+          _id: itemId,
+          quantity: 1,
+          restaurantId: restId,
+          restaurantName: restaurant.name || '',
+          restaurantSlug: restaurant.slug || '',
+        }];
       });
       return 'added';
-    },
-    [restaurantId, foodCourtId],
-  );
+    }
 
-  const removeItem = useCallback((itemId) => {
+    // Non-food-court: single restaurant restriction
+    if (currentRestaurantId && currentRestaurantId !== restId) {
+      // Different restaurant — clear first
+      setItems([{ ...item, _id: itemId, quantity: 1 }]);
+      setRestaurantId(restId);
+      restaurantIdRef.current = restId;
+      setRestaurantData(restaurant);
+      setFoodCourtId(null);
+      foodCourtIdRef.current = null;
+      return 'switched';
+    }
+    if (!currentRestaurantId) {
+      setRestaurantId(restId);
+      restaurantIdRef.current = restId;
+      setRestaurantData(restaurant);
+    }
+    setFoodCourtId(null);
+    foodCourtIdRef.current = null;
+    setItems((prev) => {
+      const idx = prev.findIndex((i) => String(i._id || i.id) === itemId);
+      if (idx >= 0) {
+        const updated = [...prev];
+        updated[idx] = { ...updated[idx], quantity: updated[idx].quantity + 1 };
+        return updated;
+      }
+      return [...prev, { ...item, _id: itemId, quantity: 1 }];
+    });
+    return 'added';
+  };
+
+  const removeItem = (itemId) => {
     setItems((prev) => prev.filter((i) => i._id !== itemId));
-  }, []);
+  };
 
-  const updateQuantity = useCallback((itemId, qty) => {
+  const updateQuantity = (itemId, qty) => {
     if (qty <= 0) {
       setItems((prev) => prev.filter((i) => i._id !== itemId));
       return;
@@ -115,15 +128,17 @@ export const CartProvider = ({ children }) => {
     setItems((prev) =>
       prev.map((i) => (i._id === itemId ? { ...i, quantity: qty } : i)),
     );
-  }, []);
+  };
 
-  const clearCart = useCallback(() => {
+  const clearCart = () => {
     setItems([]);
     setRestaurantId(null);
     setRestaurantData(null);
     setDineInInfo(null);
     setFoodCourtId(null);
-  }, []);
+    foodCourtIdRef.current = null;
+    restaurantIdRef.current = null;
+  };
 
   // Group items by restaurant (for food court multi-restaurant orders)
   const getItemsByRestaurant = () => {
