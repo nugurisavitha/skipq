@@ -386,7 +386,6 @@ const getActiveTrip = asyncHandler(async (req, res) => {
  */
 const broadcastOrderToAgents = async (order, io) => {
   try {
-    console.log('[BROADCAST_DIAG] start', { orderId: order && order._id && order._id.toString(), status: order && order.status, restaurantId: order && order.restaurant && order.restaurant.toString && order.restaurant.toString() });
     const Restaurant = require('../models/Restaurant');
     const restaurant = await Restaurant.findById(order.restaurant).select('location address');
     if (!restaurant) {
