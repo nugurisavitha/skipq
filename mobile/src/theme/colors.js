@@ -1,0 +1,1 @@
+export const Colors = { primary: '#F2A93E' }; // test placeholder
